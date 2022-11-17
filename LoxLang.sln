@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoxLang.Core", "LoxLang.Cor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoxLang.App", "LoxLang.App\LoxLang.App.csproj", "{349A7895-B516-4C23-B57C-1D6EA8090981}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoxLang.Tests", "LoxLang.Tests\LoxLang.Tests.csproj", "{09941026-5177-4BAE-851F-A1111B553D31}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{349A7895-B516-4C23-B57C-1D6EA8090981}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{349A7895-B516-4C23-B57C-1D6EA8090981}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{349A7895-B516-4C23-B57C-1D6EA8090981}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09941026-5177-4BAE-851F-A1111B553D31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09941026-5177-4BAE-851F-A1111B553D31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09941026-5177-4BAE-851F-A1111B553D31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09941026-5177-4BAE-851F-A1111B553D31}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
