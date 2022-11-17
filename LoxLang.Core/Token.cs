@@ -4,13 +4,7 @@ public class Token
 {
     public required TokenType TokenType { get; init; }
     public required SubString Lexeme { get; init; }
-    public object? Literal { get; init; }
     public required int Line { get; init; }
-
-    public Token()
-    {
-        
-    }
 
     public static Token EOF(int line)
         => new()
@@ -21,7 +15,13 @@ public class Token
         };
 
     public override string ToString()
-    {
-        return $"[{Line}]{TokenType} {Lexeme} {Literal}";
-    }
+        => $"[{Line}]{TokenType} {Lexeme}";
+}
+
+public class LiteralToken : Token
+{
+    public required object Literal { get; init; }
+
+    public override string ToString()
+        => $"[{Line}]{TokenType} {Lexeme} {Literal}";
 }

@@ -83,7 +83,7 @@ public class TestScanner
         AssertErrors();
         switch (tokens)
         {
-            case not [{TokenType: Core.TokenType.STRING, Literal: "Hello"}, {TokenType: TokenType.EOF}]:
+            case not [LiteralToken {TokenType: Core.TokenType.STRING, Literal: "Hello"}, {TokenType: TokenType.EOF}]:
                 Assert.Fail();
                 break;
         }
@@ -105,7 +105,7 @@ public class TestScanner
         AssertErrors();
         switch (tokens)
         {
-            case not [{TokenType: Core.TokenType.NUMBER, Literal: 123d}, {TokenType: TokenType.EOF}]:
+            case not [LiteralToken {TokenType: Core.TokenType.NUMBER, Literal: 123d}, {TokenType: TokenType.EOF}]:
                 Assert.Fail();
                 break;
         }
@@ -119,7 +119,7 @@ public class TestScanner
         AssertErrors();
         switch (tokens)
         {
-            case not [{TokenType: Core.TokenType.NUMBER, Literal: 123.45d}, {TokenType: TokenType.EOF}]:
+            case not [LiteralToken {TokenType: Core.TokenType.NUMBER, Literal: 123.45d}, {TokenType: TokenType.EOF}]:
                 Assert.Fail();
                 break;
         }
@@ -133,7 +133,7 @@ public class TestScanner
         AssertErrors();
         switch (tokens)
         {
-            case not [{TokenType: TokenType.DOT}, {TokenType: TokenType.NUMBER, Literal: 45d}, {TokenType: TokenType.EOF}]:
+            case not [{TokenType: TokenType.DOT}, LiteralToken {TokenType: TokenType.NUMBER, Literal: 45d}, {TokenType: TokenType.EOF}]:
                 Assert.Fail();
                 break;
         }
@@ -147,7 +147,7 @@ public class TestScanner
         AssertErrors();
         switch (tokens)
         {
-            case not [{TokenType: TokenType.NUMBER, Literal: 123d}, {TokenType: TokenType.DOT}, {TokenType: TokenType.EOF}]:
+            case not [LiteralToken {TokenType: TokenType.NUMBER, Literal: 123d}, {TokenType: TokenType.DOT}, {TokenType: TokenType.EOF}]:
                 Assert.Fail();
                 break;
         }
@@ -161,7 +161,7 @@ public class TestScanner
         AssertErrors();
         switch (tokens)
         {
-            case not [{TokenType: TokenType.MINUS}, {TokenType: Core.TokenType.NUMBER, Literal: 123.45d}, {TokenType: TokenType.EOF}]:
+            case not [{TokenType: TokenType.MINUS}, LiteralToken {TokenType: Core.TokenType.NUMBER, Literal: 123.45d}, {TokenType: TokenType.EOF}]:
                 Assert.Fail();
                 break;
         }

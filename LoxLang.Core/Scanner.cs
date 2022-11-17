@@ -229,12 +229,22 @@ public class Scanner
                 "while" => TokenType.WHILE,
                 _ => type,
             };
-        Tokens.Add(new()
+        Token token = literal switch
         {
-            TokenType = type,
-            Lexeme = lexeme,
-            Line = line,
-            Literal = literal,
-        });
+            null => new Token()
+            {
+                TokenType = type,
+                Lexeme = lexeme,
+                Line = line,
+            },
+            var obj => new LiteralToken()
+            {
+                TokenType = type,
+                Lexeme = lexeme,
+                Line = line,
+                Literal = obj,
+            },
+        };
+        Tokens.Add(token);
     }
 }
