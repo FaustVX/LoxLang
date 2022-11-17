@@ -1,0 +1,17 @@
+// execute it at: https://bertrandbev.github.io/dlox
+
+fun fib(n)
+{
+  fun inner(a, b, n)
+  {
+    if (n <= 0)
+      return a;
+    return inner(b, a + b, n - 1);
+  }
+  return inner(0, 1, n);
+}
+
+for (var a = 0; a < 15; a += 1)
+{
+  print fib(a);
+}
