@@ -1,4 +1,5 @@
 ﻿using LoxLang.Core;
+using Environment = System.Environment;
 
 internal static class Program
 {

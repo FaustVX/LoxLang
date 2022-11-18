@@ -1,13 +1,15 @@
+using Void = LoxLang.Core.Utils.Void;
 namespace LoxLang.Core;
 
-public sealed class Interpretor : IVisitor<object?>
+public sealed class Interpretor : IExprVisitor<object?>, IStmtVisitor<Void>
 {
-    public void Interpret(Expr exprpression)
+    private Environment _env = new();
+    public void Interpret(List<Stmt> statements)
     {
         try
         {
-            var value = exprpression.Accept(this);
-            Console.WriteLine(Stringify(value));
+            foreach (var stmt in statements)
+                stmt.Accept(this);
         }
         catch (RuntimeException ex)
         {
@@ -22,7 +24,7 @@ public sealed class Interpretor : IVisitor<object?>
             var v => v.ToString()!,
         };
 
-    object? IVisitor<object?>.Visit(BinaryExpr expr)
+    object? IExprVisitor<object?>.Visit(BinaryExpr expr)
         => (expr.Operator.TokenType, expr.Left.Accept(this), expr.Right.Accept(this)) switch
         {
             (TokenType.MINUS, var left, var right)
@@ -57,13 +59,13 @@ public sealed class Interpretor : IVisitor<object?>
             _ => null,
         };
 
-    object? IVisitor<object?>.Visit(GroupExpr expr)
+    object? IExprVisitor<object?>.Visit(GroupExpr expr)
         => expr.Expression.Accept(this);
 
-    object? IVisitor<object?>.Visit(LiteralExpr expr)
+    object? IExprVisitor<object?>.Visit(LiteralExpr expr)
         => expr.Value;
 
-    object? IVisitor<object?>.Visit(UnaryExpr expr)
+    object? IExprVisitor<object?>.Visit(UnaryExpr expr)
         => (expr.Operator.TokenType, expr.Expression.Accept(this)) switch
         {
             // (TokenType.BANG, bool b) => !b,
@@ -73,6 +75,56 @@ public sealed class Interpretor : IVisitor<object?>
                 => -v,
             _ => null,
         };
+
+    object? IExprVisitor<object?>.Visit(VariableExpr expr)
+        => _env.Get(expr.Name);
+
+    object? IExprVisitor<object?>.Visit(AssignExpr expr)
+    {
+        var value = expr.Value.Accept(this);
+        _env.Assign(expr.Name, value);
+        return value;
+    }
+
+    Void IStmtVisitor<Void>.Visit(ExprStmt stmt)
+    {
+        stmt.Expr.Accept(this);
+        return default;
+    }
+
+    Void IStmtVisitor<Void>.Visit(PrintStmt stmt)
+    {
+        Console.WriteLine(Stringify(stmt.Expr.Accept(this)));
+        return default;
+    }
+
+    Void IStmtVisitor<Void>.Visit(VariableStmt stmt)
+    {
+        var value = stmt.Initializer?.Accept(this);
+        _env.Define(stmt.Name, value);
+        return default;
+    }
+
+    Void IStmtVisitor<Void>.Visit(BlockStmt stmt)
+    {
+        ExecuteBlock(stmt.Statements, new(_env));
+        return default;
+    }
+
+    private void ExecuteBlock(List<Stmt> statements, Environment environment)
+    {
+        var previous = _env;
+        try
+        {
+            _env = environment;
+            foreach (var stmt in statements)
+                stmt.Accept(this);
+        }
+        finally
+        {
+            _env = previous;
+        }
+    }
 
     private static bool IsTruthy(object? obj)
         => obj switch

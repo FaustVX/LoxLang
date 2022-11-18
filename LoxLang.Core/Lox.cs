@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 namespace LoxLang.Core;
 
 public static class Lox
@@ -13,15 +11,12 @@ public static class Lox
         var scanner = new Scanner(source);
         var tokens = scanner.ScanTokens();
         var parser = new Parser(tokens);
-        var expr = parser.Parse();
+        var stmts = parser.Parse();
 
-        if (HasError || expr is null)
+        if (HasError)
             return;
-#if DEBUG
-        Console.WriteLine(new ASTPrinterRPN().Print(expr));
-#endif
 
-        _interpretor.Interpret(expr);
+        _interpretor.Interpret(stmts);
     }
 
     public static void Error(int line, string message)

@@ -13,20 +13,90 @@ internal class Parser
         this._tokens = tokens;
     }
 
-    public Expr? Parse()
+    public List<Stmt> Parse()
+    {
+        var statements = new List<Stmt>();
+        while (!IsAtEnd)
+            statements.Add(ParseDeclaration());
+        return statements; 
+    }
+
+    private Stmt ParseDeclaration()
     {
         try
         {
-            return ParseExpression();
+            if (MatchToken(TokenType.VAR))
+                return ParseVarDeclaration();
+            return ParseStatement();
         }
         catch (ParserException)
         {
-            return null;
+            Synchronize();
+            return null!;
         }
     }
 
+    private Stmt ParseVarDeclaration()
+    {
+        var name = Consume(TokenType.IDENTIFIER, "Expect variable name.");
+#if CHALLENGE_STATEMENT
+        Consume(TokenType.EQUAL, $"Variable '{name.Lexeme}' must be initialized.");
+        var initializer = ParseExpression();
+#else
+        var initializer = MatchToken(TokenType.EQUAL) ? ParseExpression() : null;
+#endif
+        Consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
+        return new VariableStmt(name, initializer);
+    }
+
+    private Stmt ParseStatement()
+    {
+        if (MatchToken(TokenType.PRINT))
+            return ParsePrintStatement();
+        if (MatchToken(TokenType.LEFT_BRACE))
+            return new BlockStmt(ParseBlockStatement());
+        return ParseExprStatement();
+    }
+
+    private List<Stmt> ParseBlockStatement()
+    {
+        var statements = new List<Stmt>();
+        while (!Check(TokenType.RIGHT_BRACE) && !IsAtEnd)
+            statements.Add(ParseDeclaration());
+        Consume(TokenType.RIGHT_BRACE, "Expect '}' after block.");
+        return statements;
+    }
+
+    private Stmt ParsePrintStatement()
+    {
+        var expr = ParseExpression();
+        Consume(TokenType.SEMICOLON, "Expect ';' after expression.");
+        return new PrintStmt(expr);
+    }
+
+    private Stmt ParseExprStatement()
+    {
+        var expr = ParseExpression();
+        Consume(TokenType.SEMICOLON, "Expect ';' after expression.");
+        return new ExprStmt(expr);
+    }
+
     private Expr ParseExpression()
-        => ParseEquality();
+        => ParseAssignment();
+
+    private Expr ParseAssignment()
+    {
+        var expr = ParseEquality();
+        if (MatchToken(TokenType.EQUAL))
+        {
+            var token = Previous();
+            var value = ParseAssignment();
+            if (expr is VariableExpr { Name: var name })
+                return new AssignExpr(name, value);
+            GenerateError(token, "Invalid assignment target.");
+        }
+        return expr;
+    }
 
     private Expr ParseEquality()
         => ParseLeftAssociativeBinaryExpr(ParseComparison, TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL);
@@ -63,6 +133,8 @@ internal class Parser
             Consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
             return new GroupExpr(expr);
         }
+        if (MatchToken(TokenType.IDENTIFIER))
+            return new VariableExpr(Previous());
         throw GenerateError(Peek(), "Expect expression.");
     }
 

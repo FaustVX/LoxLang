@@ -6,6 +6,7 @@ Lang in C# based on [Crafting Interpreters](https://craftinginterpreters.com/con
 - You can try some of asked exercises by adding compile Constant
 - Scan multiline-comments [CHALLENGE_SCANNING](./LoxLang.Core/LoxLang.Core.csproj)
 - Check division by 0 and allow `string` + `number` concatenation [CHALLENGE_INTERPRET](./LoxLang.Core/LoxLang.Core.csproj)
+- variable declaration must be initialized [CHALLENGE_STATEMENT](./LoxLang.Core/LoxLang.Core.csproj)
 
 ## Bonus Todo:
 - [modulo (`%`), prefix & postfic increment/decrement (`++` `--`)](https://craftinginterpreters.com/the-lox-language.html#precedence-and-grouping)
@@ -19,13 +20,27 @@ Lang in C# based on [Crafting Interpreters](https://craftinginterpreters.com/con
 
 ## Grammar
 ```ebnf
-expression     = equality ;
+program        = declaration* EOF ;
+declaration    = varDecl
+               | statement ;
+statement      = exprStmt
+               | printStmt
+               | block ;
+block          = "{" declaration* "}" ;
+varDecl        = "var" IDENTIFIER ( "=" expression )? ";" ;
+exprStmt       = expression ";" ;
+printStmt      = "print" expression ";" ;
+expression     = assignment ;
+assignment     = IDENTIFIER "=" assignment
+               | equality ;
 equality       = comparison ( ( "!=" | "==" ) comparison )* ;
 comparison     = term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
 term           = factor ( ( "-" | "+" ) factor )* ;
 factor         = unary ( ( "/" | "*" ) unary )* ;
 unary          = ( "!" | "-" ) unary
                | primary ;
-primary        = NUMBER | STRING | "true" | "false" | "nil"
-               | "(" expression ")" ;
+primary        = NUMBER | STRING
+               | "true" | "false" | "nil"
+               | "(" expression ")"
+               | IDENTIFIER ;
 ```

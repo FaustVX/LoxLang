@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <!-- <DefineConstants>CHALLENGE_SCANNING</DefineConstants> -->
     <!-- <DefineConstants>CHALLENGE_INTERPRET</DefineConstants> -->
+    <!-- <DefineConstants>CHALLENGE_STATEMENT</DefineConstants> -->
   </PropertyGroup>
 
 </Project>
