@@ -24,7 +24,7 @@ public sealed record class GroupExpr(Expr Expression) : Expr()
         => visitor.Visit(this);
 }
 
-public sealed record class LiteralExpr(object Value) : Expr()
+public sealed record class LiteralExpr(object? Value) : Expr()
 {
     public override T Accept<T>(IVisitor<T> visitor)
         => visitor.Visit(this);

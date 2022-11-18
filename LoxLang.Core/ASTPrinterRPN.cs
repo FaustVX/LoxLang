@@ -9,7 +9,7 @@ public class ASTPrinterRPN : IVisitor<string>
         => $"{expr.Left.Accept(this)} {expr.Right.Accept(this)} {expr.Operator.Lexeme.ToString()}";
 
     public string Visit(GroupExpr expr)
-        => $"({expr.Expression.Accept(this)})";
+        => $"{expr.Expression.Accept(this)}";
 
     public string Visit(LiteralExpr expr)
         => expr.Value is {} value ? value.ToString()! : "nil";

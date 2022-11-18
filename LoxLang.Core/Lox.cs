@@ -8,11 +8,12 @@ public static class Lox
     {
         var scanner = new Scanner(source);
         var tokens = scanner.ScanTokens();
+        var parser = new Parser(tokens);
+        var expr = parser.Parse();
 
-        foreach (var token in tokens)
-        {
-            System.Console.WriteLine(token);
-        }
+        if (HasError || expr is null)
+            return;
+        Console.WriteLine(new ASTPrinterRPN().Print(expr));
     }
 
     public static void Error(int line, string message)
@@ -22,5 +23,13 @@ public static class Lox
     {
         Console.Error.WriteLine($"[line: {line}] Error{where}: {message}");
         HasError = true;
+    }
+
+    internal static void Error(Token token, string message)
+    {
+        if (token.TokenType == TokenType.EOF)
+            Report(token.Line, " at end", message);
+        else
+            Report(token.Line, $" at '{token.Lexeme}'", message);
     }
 }
