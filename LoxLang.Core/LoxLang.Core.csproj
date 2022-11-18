@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <!-- <DefineConstants>CHALLENGE_SCANNING</DefineConstants> -->
+    <!-- <DefineConstants>CHALLENGE_INTERPRET</DefineConstants> -->
   </PropertyGroup>
 
 </Project>

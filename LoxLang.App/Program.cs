@@ -24,6 +24,8 @@ internal static class Program
         Lox.Run(File.ReadAllText(file.FullName));
         if (Lox.HasError)
             Environment.Exit(65);
+        else if (Lox.HasRuntimeError)
+            Environment.Exit(70);
     }
 
     private static void RunPrompt()

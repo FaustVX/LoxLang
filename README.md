@@ -5,6 +5,7 @@ Lang in C# based on [Crafting Interpreters](https://craftinginterpreters.com/con
 ## Exercises Bonus
 - You can try some of asked exercises by adding compile Constant
 - Scan multiline-comments [CHALLENGE_SCANNING](./LoxLang.Core/LoxLang.Core.csproj)
+- Check division by 0 and allow `string` + `number` concatenation [CHALLENGE_INTERPRET](./LoxLang.Core/LoxLang.Core.csproj)
 
 ## Bonus Todo:
 - [modulo (`%`), prefix & postfic increment/decrement (`++` `--`)](https://craftinginterpreters.com/the-lox-language.html#precedence-and-grouping)
