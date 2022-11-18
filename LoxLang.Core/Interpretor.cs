@@ -59,6 +59,14 @@ public sealed class Interpretor : IExprVisitor<object?>, IStmtVisitor<Void>
             _ => null,
         };
 
+    object? IExprVisitor<object?>.Visit(LogicalExpr expr)
+        => (expr.Operator.TokenType, expr.Left.Accept(this)) switch
+        {
+            (TokenType.OR, var left) when IsTruthy(left) => left,
+            (TokenType.AND, var left) when !IsTruthy(left) => left,
+            _ => expr.Right.Accept(this),
+        };
+
     object? IExprVisitor<object?>.Visit(GroupExpr expr)
         => expr.Expression.Accept(this);
 
@@ -108,6 +116,22 @@ public sealed class Interpretor : IExprVisitor<object?>, IStmtVisitor<Void>
     Void IStmtVisitor<Void>.Visit(BlockStmt stmt)
     {
         ExecuteBlock(stmt.Statements, new(_env));
+        return default;
+    }
+
+    Void IStmtVisitor<Void>.Visit(IfStmt stmt)
+    {
+        if (IsTruthy(stmt.Condition.Accept(this)))
+            stmt.Then.Accept(this);
+        else
+            stmt.Else?.Accept(this);
+        return default;
+    }
+
+    Void IStmtVisitor<Void>.Visit(WhileStmt stmt)
+    {
+        while (IsTruthy(stmt.Condition.Accept(this)))
+            stmt.Body.Accept(this);
         return default;
     }
 

@@ -55,7 +55,61 @@ internal class Parser
             return ParsePrintStatement();
         if (MatchToken(TokenType.LEFT_BRACE))
             return new BlockStmt(ParseBlockStatement());
+        if (MatchToken(TokenType.IF))
+            return ParseIf();
+        if (MatchToken(TokenType.WHILE))
+            return ParseWhile();
+        if (MatchToken(TokenType.FOR))
+            return ParseFor();
         return ParseExprStatement();
+    }
+
+    private Stmt ParseFor()
+    {
+        Consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.");
+        var initializer = Initializer(this);
+        var condition = !MatchToken(TokenType.SEMICOLON) ? ParseExpression() : null;
+        Consume(TokenType.SEMICOLON, "Expect ';' after loop condition.");
+        var increment = !MatchToken(TokenType.RIGHT_PAREN) ? ParseExpression() : null;
+        Consume(TokenType.RIGHT_PAREN, "Expect ')' after clauses.");
+        var body = ParseStatement();
+
+        if (increment is not null)
+            body = new BlockStmt(body, new ExprStmt(increment));
+        condition ??= new LiteralExpr(true);
+        body = new WhileStmt(condition, body);
+        if (initializer is not null)
+            body = new BlockStmt(initializer, body);
+        return body;
+
+        static Stmt? Initializer(Parser parser)
+        {
+            if (parser.MatchToken(TokenType.SEMICOLON))
+                return null;
+            if (parser.MatchToken(TokenType.VAR))
+                return parser.ParseVarDeclaration();
+            return parser.ParseExprStatement();
+        }
+
+    }
+
+    private Stmt ParseWhile()
+    {
+        Consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.");
+        var cond = ParseExpression();
+        Consume(TokenType.RIGHT_PAREN, "Expect ')' after while condition.");
+        var thenBranch = ParseStatement();
+        return new WhileStmt(cond, thenBranch);
+    }
+
+    private Stmt ParseIf()
+    {
+        Consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.");
+        var cond = ParseExpression();
+        Consume(TokenType.RIGHT_PAREN, "Expect ')' after if condition.");
+        var thenBranch = ParseStatement();
+        var elseBranch = MatchToken(TokenType.ELSE) ? ParseStatement() : null;
+        return new IfStmt(cond, thenBranch, elseBranch);
     }
 
     private List<Stmt> ParseBlockStatement()
@@ -86,7 +140,7 @@ internal class Parser
 
     private Expr ParseAssignment()
     {
-        var expr = ParseEquality();
+        var expr = ParseLogicalOr();
         if (MatchToken(TokenType.EQUAL))
         {
             var token = Previous();
@@ -98,17 +152,23 @@ internal class Parser
         return expr;
     }
 
+    private Expr ParseLogicalOr()
+        => ParseLeftAssociativeBinaryExpr(ParseLogicalAnd, static (left, op, right) => new LogicalExpr(left, op, right), TokenType.OR);
+
+    private Expr ParseLogicalAnd()
+        => ParseLeftAssociativeBinaryExpr(ParseEquality, static (left, op, right) => new LogicalExpr(left, op, right), TokenType.AND);
+
     private Expr ParseEquality()
-        => ParseLeftAssociativeBinaryExpr(ParseComparison, TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL);
+        => ParseLeftAssociativeBinaryExpr(ParseComparison, static (left, op, right) => new BinaryExpr(left, op, right), TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL);
 
     private Expr ParseComparison()
-        => ParseLeftAssociativeBinaryExpr(ParseTerm, TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL);
+        => ParseLeftAssociativeBinaryExpr(ParseTerm, static (left, op, right) => new BinaryExpr(left, op, right), TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL);
 
     private Expr ParseTerm()
-        => ParseLeftAssociativeBinaryExpr(ParseFactor, TokenType.MINUS, TokenType.PLUS);
+        => ParseLeftAssociativeBinaryExpr(ParseFactor, static (left, op, right) => new BinaryExpr(left, op, right), TokenType.MINUS, TokenType.PLUS);
 
     private Expr ParseFactor()
-        => ParseLeftAssociativeBinaryExpr(ParseUnary, TokenType.SLASH, TokenType.STAR);
+        => ParseLeftAssociativeBinaryExpr(ParseUnary, static (left, op, right) => new BinaryExpr(left, op, right), TokenType.SLASH, TokenType.STAR);
 
     private Expr ParseUnary()
     {
@@ -174,14 +234,14 @@ internal class Parser
         return new();
     }
 
-    private Expr ParseLeftAssociativeBinaryExpr(Func<Expr> parseExpr, params TokenType[] tokenTypes)
+    private Expr ParseLeftAssociativeBinaryExpr(Func<Expr> parseExpr, Func<Expr, Token, Expr, Expr> ctor, params TokenType[] tokenTypes)
     {
         var left = parseExpr();
         while (tokenTypes.Any(MatchToken))
         {
             var op = Previous();
             var right = parseExpr();
-            left = new BinaryExpr(left, op, right);
+            left = ctor(left, op, right);
         }
         return left;
     }
