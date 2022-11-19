@@ -9,6 +9,8 @@ public interface IExprVisitor<T>
     T Visit(UnaryExpr expr);
     T Visit(VariableExpr expr);
     T Visit(AssignExpr expr);
+    T Visit(CallExpr expr);
+    T Visit(LambdaExpr expr);
 }
 
 public abstract record class Expr()
@@ -51,6 +53,18 @@ public sealed record class VariableExpr(Token Name) : Expr()
 }
 
 public sealed record class AssignExpr(Token Name, Expr Value) : Expr()
+{
+    public override T Accept<T>(IExprVisitor<T> visitor)
+        => visitor.Visit(this);
+}
+
+public sealed record class CallExpr(Expr Callee, Token Paren, List<Expr> Arguments) : Expr()
+{
+    public override T Accept<T>(IExprVisitor<T> visitor)
+        => visitor.Visit(this);
+}
+
+public sealed record class LambdaExpr(List<Token> Parameters, List<Stmt> Body) : Expr()
 {
     public override T Accept<T>(IExprVisitor<T> visitor)
         => visitor.Visit(this);

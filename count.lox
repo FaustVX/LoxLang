@@ -1,0 +1,7 @@
+fun count(n) {
+  if (n > 1) count(n - 1);
+  if (n == 1) breakpoint();
+  print n;
+}
+
+count(3);

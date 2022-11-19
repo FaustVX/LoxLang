@@ -30,6 +30,7 @@ public static class Lox
 
     public static void Error(Token token, string message)
     {
+        LaunchDebugger();
         if (token.TokenType == TokenType.EOF)
             Report(token.Line, " at end", message);
         else
@@ -38,7 +39,15 @@ public static class Lox
 
     public static void RuntimeError(RuntimeException ex)
     {
+        LaunchDebugger();
         Console.Error.WriteLine($"{ex.Message}\n[line {ex.Token.Line}]");
         HasRuntimeError = true;
+    }
+
+    [System.Diagnostics.Conditional("DEBUG")]
+    public static void LaunchDebugger()
+    {
+        if (System.Diagnostics.Debugger.Launch())
+            System.Diagnostics.Debugger.Break();
     }
 }

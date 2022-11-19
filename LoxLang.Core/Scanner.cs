@@ -64,6 +64,9 @@ public class Scanner
             case ';':
                 AddToken(TokenType.SEMICOLON);
                 break;
+            case ':':
+                AddToken(TokenType.COLON);
+                break;
             case '*':
                 AddToken(TokenType.STAR);
                 break;

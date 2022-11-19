@@ -19,6 +19,20 @@ public class Environment
             throw new RuntimeException(name, $"variable '{name.Lexeme}' already defined");
     }
 
+    public void DefineFun(NativeCallable function)
+    {
+        if (!_values.ContainsKey(function.Name))
+            _values[function.Name] = function;
+    }
+
+    public void DefineFun(DefinedCallable function)
+    {
+        if (!_values.ContainsKey(function.Name))
+            _values[function.Name] = function;
+        else
+            throw new RuntimeException(function.NameToken, $"variable '{function.Name}' already defined");
+    }
+
     public object? Get(Token token)
     {
         if (_values.TryGetValue(token.Lexeme.ToString(), out var value))

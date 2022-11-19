@@ -8,6 +8,8 @@ public interface IStmtVisitor<T>
     T Visit(BlockStmt stmt);
     T Visit(IfStmt stmt);
     T Visit(WhileStmt stmt);
+    T Visit(FunctionStmt stmt);
+    T Visit(ReturnStmt stmt);
 }
 
 public abstract record class Stmt()
@@ -49,6 +51,18 @@ public sealed record class IfStmt(Expr Condition, Stmt Then, Stmt? Else) : Stmt(
 }
 
 public sealed record class WhileStmt(Expr Condition, Stmt Body) : Stmt()
+{
+    public override T Accept<T>(IStmtVisitor<T> visitor)
+        => visitor.Visit(this);
+}
+
+public sealed record class FunctionStmt(Token Name, List<Token> Parameters, List<Stmt> Body) : Stmt()
+{
+    public override T Accept<T>(IStmtVisitor<T> visitor)
+        => visitor.Visit(this);
+}
+
+public sealed record class ReturnStmt(Token keyword, Expr? Expr) : Stmt()
 {
     public override T Accept<T>(IStmtVisitor<T> visitor)
         => visitor.Visit(this);

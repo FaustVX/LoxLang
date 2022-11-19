@@ -21,21 +21,29 @@ Lang in C# based on [Crafting Interpreters](https://craftinginterpreters.com/con
 ## Grammar
 ```ebnf
 program        = declaration* EOF ;
-declaration    = varDecl
+declaration    = funDecl
+               | varDecl
                | statement ;
-statement      = exprStmt
+statement      = funsStmt
                | forStmt
                | ifStmt
-               | printStmt
                | whileStmt
                | block ;
+funsStmt       = exprStmt
+               | printStmt
+               | returnStmt;
+returnStmt     = "return" expression? ";" ;
 ifStmt         = "if" "(" expression ")" statement
                ( "else" statement )? ;
-whileStmt      = "while" "(" expression ")" statement
+whileStmt      = "while" "(" expression ")" statement ;
 forStmt        = "for" "(" ( varDecl | exprStmt | ";" )
                  expression? ";"
                  expression? ")" statement ;
 block          = "{" declaration* "}" ;
+funDecl        = "fun" function ;
+function       = IDENTIFIER "(" parameters? ")" (block | ":" statement ) ;
+lambdaExpr   = "fun" "(" parameters? ")" (block | ":" statement ) ;
+parameters     = IDENTIFIER ( "," IDENTIFIER )* ;
 varDecl        = "var" IDENTIFIER ( "=" expression )? ";" ;
 exprStmt       = expression ";" ;
 printStmt      = "print" expression ";" ;
@@ -49,9 +57,12 @@ comparison     = term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
 term           = factor ( ( "-" | "+" ) factor )* ;
 factor         = unary ( ( "/" | "*" ) unary )* ;
 unary          = ( "!" | "-" ) unary
-               | primary ;
+               | call ;
+call           = primary ( "(" arguments? ")" )* ;
+arguments      = expression ( "," expression )* ;
 primary        = NUMBER | STRING
                | "true" | "false" | "nil"
                | "(" expression ")"
+               | lambdaExpr
                | IDENTIFIER ;
 ```

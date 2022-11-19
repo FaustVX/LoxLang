@@ -3,7 +3,59 @@ namespace LoxLang.Core;
 
 public sealed class Interpretor : IExprVisitor<object?>, IStmtVisitor<Void>
 {
-    private Environment _env = new();
+    private sealed class ClockFun : NativeCallable
+    {
+        public override int Arity => 0;
+        public override string Name => "clock";
+
+        public override object? Call(Interpretor interpretor, List<object?> args)
+            => DateTime.UtcNow.TimeOfDay.TotalSeconds;
+    }
+
+    private sealed class ReadFun : NativeCallable
+    {
+        public override int Arity => 0;
+        public override string Name => "read";
+
+        public override object? Call(Interpretor interpretor, List<object?> args)
+            => Console.ReadLine();
+    }
+
+    private sealed class PrintFun : NativeCallable
+    {
+        public override int Arity => 1;
+        public override string Name => "print";
+
+        public override object? Call(Interpretor interpretor, List<object?> args)
+        {
+            Console.WriteLine(args[0]);
+            return default(Void);
+        }
+    }
+
+    private sealed class BreakpointFun : NativeCallable
+    {
+        public override int Arity => 0;
+        public override string Name => "breakpoint";
+
+        public override object? Call(Interpretor interpretor, List<object?> args)
+        {
+           Lox.LaunchDebugger();
+            return default(Void);
+        }
+    }
+
+    public static Environment GlobalEnv { get; } = new();
+    public Environment CurrentEnv { get; private set; } = new(GlobalEnv);
+
+    static Interpretor()
+    {
+        GlobalEnv.DefineFun(new ClockFun());
+        GlobalEnv.DefineFun(new ReadFun());
+        GlobalEnv.DefineFun(new PrintFun());
+        GlobalEnv.DefineFun(new BreakpointFun());
+    }
+
     public void Interpret(List<Stmt> statements)
     {
         try
@@ -85,14 +137,30 @@ public sealed class Interpretor : IExprVisitor<object?>, IStmtVisitor<Void>
         };
 
     object? IExprVisitor<object?>.Visit(VariableExpr expr)
-        => _env.Get(expr.Name);
+        => CurrentEnv.Get(expr.Name);
 
     object? IExprVisitor<object?>.Visit(AssignExpr expr)
     {
         var value = expr.Value.Accept(this);
-        _env.Assign(expr.Name, value);
+        CurrentEnv.Assign(expr.Name, value);
         return value;
     }
+
+    object? IExprVisitor<object?>.Visit(CallExpr expr)
+    {
+        var callee = expr.Callee.Accept(this);
+        var args = expr.Arguments.Select(arg => arg.Accept(this)).ToList();
+        if (callee is ICallable function)
+        {
+            if (function.Arity != args.Count)
+                throw new RuntimeException(expr.Paren, $"Expected {function.Arity} arguments but got {args.Count}.");
+            return function.Call(this, args);
+        }
+        throw new RuntimeException(expr.Paren, "Can only call functions and classes.");
+    }
+
+    object? IExprVisitor<object?>.Visit(LambdaExpr expr)
+        => new LambdaFunction(expr, CurrentEnv);
 
     Void IStmtVisitor<Void>.Visit(ExprStmt stmt)
     {
@@ -109,13 +177,13 @@ public sealed class Interpretor : IExprVisitor<object?>, IStmtVisitor<Void>
     Void IStmtVisitor<Void>.Visit(VariableStmt stmt)
     {
         var value = stmt.Initializer?.Accept(this);
-        _env.Define(stmt.Name, value);
+        CurrentEnv.Define(stmt.Name, value);
         return default;
     }
 
     Void IStmtVisitor<Void>.Visit(BlockStmt stmt)
     {
-        ExecuteBlock(stmt.Statements, new(_env));
+        ExecuteBlock(stmt.Statements, new(CurrentEnv));
         return default;
     }
 
@@ -135,18 +203,30 @@ public sealed class Interpretor : IExprVisitor<object?>, IStmtVisitor<Void>
         return default;
     }
 
-    private void ExecuteBlock(List<Stmt> statements, Environment environment)
+    Void IStmtVisitor<Void>.Visit(FunctionStmt stmt)
     {
-        var previous = _env;
+        CurrentEnv.DefineFun(new Function(stmt, CurrentEnv));
+        return default;
+    }
+
+    Void IStmtVisitor<Void>.Visit(ReturnStmt stmt)
+    {
+        var value = stmt.Expr?.Accept(this);
+        throw new ReturnControlFlowException(value);
+    }
+
+    public void ExecuteBlock(List<Stmt> statements, Environment environment)
+    {
+        var previous = CurrentEnv;
         try
         {
-            _env = environment;
+            CurrentEnv = environment;
             foreach (var stmt in statements)
                 stmt.Accept(this);
         }
         finally
         {
-            _env = previous;
+            CurrentEnv = previous;
         }
     }
 

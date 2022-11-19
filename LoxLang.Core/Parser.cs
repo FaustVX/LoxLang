@@ -2,6 +2,12 @@ namespace LoxLang.Core;
 
 internal class Parser
 {
+    private enum FunctionKind
+    {
+        Function,
+        Method,
+    }
+
     private readonly IReadOnlyList<Token> _tokens;
     private int _current = 0;
 
@@ -18,13 +24,15 @@ internal class Parser
         var statements = new List<Stmt>();
         while (!IsAtEnd)
             statements.Add(ParseDeclaration());
-        return statements; 
+        return statements;
     }
 
     private Stmt ParseDeclaration()
     {
         try
         {
+            if (MatchToken(TokenType.FUN))
+                return ParseFunction(FunctionKind.Function);
             if (MatchToken(TokenType.VAR))
                 return ParseVarDeclaration();
             return ParseStatement();
@@ -34,6 +42,38 @@ internal class Parser
             Synchronize();
             return null!;
         }
+    }
+
+    private Stmt ParseFunction(FunctionKind funKind)
+    {
+        var kind = funKind.ToString().ToLower();
+        var name = Consume(TokenType.IDENTIFIER, $"Expect {kind} name.");
+
+        var paren = Consume(TokenType.LEFT_PAREN, $"Expect '(' after {kind} name.");
+        var parameters = new List<Token>();
+        if (!Check(TokenType.RIGHT_PAREN))
+            do
+            {
+                if (parameters.Count >= 255)
+                    GenerateError(Peek(), "Can't have more than 255 parameters.");
+                parameters.Add(Consume(TokenType.IDENTIFIER, "Expect parameter name."));
+            } while (MatchToken(TokenType.COMMA));
+        Consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters.");
+
+        if (MatchToken(TokenType.LEFT_BRACE))
+        {
+            var body = ParseBlockStatement();
+
+            return new FunctionStmt(name, parameters, body);
+        }
+        else if (MatchToken(TokenType.COLON))
+        {
+            var expr = ParseFuncStatement();
+
+            return new FunctionStmt(name, parameters, new() { expr });
+        }
+        else
+            throw GenerateError(Peek(), "Expected '{{' or ':' after function");
     }
 
     private Stmt ParseVarDeclaration()
@@ -51,8 +91,6 @@ internal class Parser
 
     private Stmt ParseStatement()
     {
-        if (MatchToken(TokenType.PRINT))
-            return ParsePrintStatement();
         if (MatchToken(TokenType.LEFT_BRACE))
             return new BlockStmt(ParseBlockStatement());
         if (MatchToken(TokenType.IF))
@@ -61,7 +99,24 @@ internal class Parser
             return ParseWhile();
         if (MatchToken(TokenType.FOR))
             return ParseFor();
+        return ParseFuncStatement();
+    }
+
+    private Stmt ParseFuncStatement()
+    {
+        if (MatchToken(TokenType.PRINT))
+            return ParsePrintStatement();
+        if (MatchToken(TokenType.RETURN))
+            return ParseReturn();
         return ParseExprStatement();
+    }
+
+    private Stmt ParseReturn()
+    {
+        var keyword = Previous();
+        var expr = !MatchToken(TokenType.SEMICOLON) ? ParseExpression() : null;
+        Consume(TokenType.SEMICOLON, "Expect ';' after return.");
+        return new ReturnStmt(keyword, expr);
     }
 
     private Stmt ParseFor()
@@ -174,7 +229,34 @@ internal class Parser
     {
         if (MatchToken(TokenType.BANG) || MatchToken(TokenType.MINUS))
             return new UnaryExpr(Previous(), ParseUnary());
-        return ParsePrimary();
+        return ParseCall();
+    }
+
+    private Expr ParseCall()
+    {
+        var expr = ParsePrimary();
+        while (true)
+        {
+            if (MatchToken(TokenType.LEFT_PAREN))
+                expr = FinishCall(expr);
+            else
+                break;
+        }
+        return expr;
+
+        Expr FinishCall(Expr expr)
+        {
+            var args = new List<Expr>();
+            if (!Check(TokenType.RIGHT_PAREN))
+                do
+                {
+                    if (args.Count >= 255)
+                        GenerateError(Peek(), "Can't have more than 255 arguments.");
+                    args.Add(ParseExpression());
+                } while (MatchToken(TokenType.COMMA));
+            var paren = Consume(TokenType.RIGHT_PAREN, "Expect ')' after arguments.");
+            return new CallExpr(expr, paren, args);
+        }
     }
 
     private Expr ParsePrimary()
@@ -195,7 +277,38 @@ internal class Parser
         }
         if (MatchToken(TokenType.IDENTIFIER))
             return new VariableExpr(Previous());
+        if (MatchToken(TokenType.FUN))
+            return ParseLambdaFunctionExpr();
         throw GenerateError(Peek(), "Expect expression.");
+    }
+
+    private Expr ParseLambdaFunctionExpr()
+    {
+        var paren = Consume(TokenType.LEFT_PAREN, $"Expect '(' after function name.");
+        var parameters = new List<Token>();
+        if (!Check(TokenType.RIGHT_PAREN))
+            do
+            {
+                if (parameters.Count >= 255)
+                    GenerateError(Peek(), "Can't have more than 255 parameters.");
+                parameters.Add(Consume(TokenType.IDENTIFIER, "Expect parameter name."));
+            } while (MatchToken(TokenType.COMMA));
+        Consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters.");
+
+        if (MatchToken(TokenType.LEFT_BRACE))
+        {
+            var body = ParseBlockStatement();
+
+            return new LambdaExpr(parameters, body);
+        }
+        else if (MatchToken(TokenType.COLON))
+        {
+            var expr = ParseFuncStatement();
+
+            return new LambdaExpr(parameters, new() { expr });
+        }
+        else
+            throw GenerateError(Peek(), "Expected '{{' or ':' after function");
     }
 
     private Token Consume(TokenType token, string message)

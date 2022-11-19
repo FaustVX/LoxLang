@@ -1,20 +1,32 @@
+var start = clock();
+
 print "one";
 print true;
 print 2 + 1;
 
+fun test(a)
+{
+  print a + 5;
+  print b;
+}
 var a = "global a";
 var b = "global b";
 var c = "global c";
 {
   var a = "outer a";
   var b = "outer b";
-  while (a or false)
+  // while (a or false)
   {
     var a = "inner a";
+    var clock = "c";
+    print clock;
     print a;
     print b;
     print c;
+    test(5);
+    print test;
   }
+  print clock;
   print a;
   print b;
   print c;
@@ -28,3 +40,20 @@ a = 1;
   var a = a + 2;
   print a;
 }
+
+fun makeCounter() {
+  var i = 0;
+  fun count() {
+    i = i + 1;
+    return i;
+  }
+
+  return count;
+}
+
+var counter = makeCounter();
+print counter;
+print counter();
+print counter();
+
+print clock() - start;
