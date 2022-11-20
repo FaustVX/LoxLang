@@ -1,6 +1,6 @@
 namespace LoxLang.Core;
 
-public sealed partial class Interpretor : IStmtVisitor<Void>
+public sealed partial class Interpreter : IStmtVisitor<Void>
 {
     Void IStmtVisitor<Void>.Visit(ExprStmt stmt)
     {

@@ -5,7 +5,7 @@ public static class Lox
     public static bool HasError { get; set; }
     public static bool HasWarning { get; set; }
     public static bool HasRuntimeError { get; set; }
-    private readonly static Interpretor _interpretor = new Interpretor();
+    private readonly static Interpreter _interpreter = new Interpreter();
 
     public static void Run(string source)
     {
@@ -17,13 +17,13 @@ public static class Lox
         if (HasError)
             return;
 
-        var resolver = new Resolver(_interpretor);
+        var resolver = new Resolver(_interpreter);
         resolver.Resolve(stmts);
 
         if (HasError)
             return;
 
-        _interpretor.Interpret(stmts);
+        _interpreter.Interpret(stmts);
     }
 
     public static void Error(int line, string message)

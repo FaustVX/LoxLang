@@ -1,13 +1,13 @@
 namespace LoxLang.Core;
 
-public sealed partial class Interpretor
+public sealed partial class Interpreter
 {
     private sealed class ClockFun : NativeCallable
     {
         public override int Arity => 0;
         public override string Name => "clock";
 
-        public override object? Call(Interpretor interpretor, List<object?> args)
+        public override object? Call(Interpreter interpreter, List<object?> args)
             => DateTime.UtcNow.TimeOfDay.TotalSeconds;
     }
 
@@ -16,7 +16,7 @@ public sealed partial class Interpretor
         public override int Arity => 0;
         public override string Name => "read";
 
-        public override object? Call(Interpretor interpretor, List<object?> args)
+        public override object? Call(Interpreter interpreter, List<object?> args)
             => Console.ReadLine();
     }
 
@@ -25,7 +25,7 @@ public sealed partial class Interpretor
         public override int Arity => 1;
         public override string Name => "print";
 
-        public override object? Call(Interpretor interpretor, List<object?> args)
+        public override object? Call(Interpreter interpreter, List<object?> args)
         {
             Console.WriteLine(args[0]);
             return default(Void);
@@ -37,7 +37,7 @@ public sealed partial class Interpretor
         public override int Arity => 0;
         public override string Name => "breakpoint";
 
-        public override object? Call(Interpretor interpretor, List<object?> args)
+        public override object? Call(Interpreter interpreter, List<object?> args)
         {
            Lox.LaunchDebugger();
             return default(Void);
@@ -49,7 +49,7 @@ public sealed partial class Interpretor
     public Environment CurrentEnv { get; private set; }
     private readonly Dictionary<Expr, int> _locals = new();
 
-    static Interpretor()
+    static Interpreter()
     {
         _globalEnv.DefineFun(new ClockFun());
         _globalEnv.DefineFun(new ReadFun());
@@ -57,7 +57,7 @@ public sealed partial class Interpretor
         _globalEnv.DefineFun(new BreakpointFun());
     }
 
-    public Interpretor()
+    public Interpreter()
     {
         RootEnv = new(_globalEnv);
         CurrentEnv = RootEnv;

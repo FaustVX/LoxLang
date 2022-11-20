@@ -14,13 +14,13 @@ public sealed partial class Resolver
         Loop,
     }
 
-    private readonly Interpretor _interpretor;
+    private readonly Interpreter _interpreter;
     private readonly Stack<Dictionary<string, (bool defined, bool accessed, Token name)>> _scopes = new();
     private FunctionType _currentFunction = FunctionType.None;
     private LoopType _currentLoop = LoopType.None;
 
-    public Resolver(Interpretor interpretor)
-        => _interpretor = interpretor;
+    public Resolver(Interpreter interpreter)
+        => _interpreter = interpreter;
 
     public void Resolve(List<Stmt> statements)
     {
@@ -36,7 +36,7 @@ public sealed partial class Resolver
             if (scope.TryGetValue(name.Lexeme.ToString(), out var infos))
             {
                 scope[name.Lexeme.ToString()] = infos with { accessed = true };
-                _interpretor.Resolve(expr, i);
+                _interpreter.Resolve(expr, i);
                 return;
             }
             i++;

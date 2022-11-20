@@ -1,6 +1,6 @@
 namespace LoxLang.Core;
 
-public sealed partial class Interpretor : IExprVisitor<object?>
+public sealed partial class Interpreter : IExprVisitor<object?>
 {
     object? IExprVisitor<object?>.Visit(BinaryExpr expr)
         => (expr.Operator.TokenType, expr.Left.Accept(this), expr.Right.Accept(this)) switch
