@@ -62,7 +62,7 @@ public sealed partial class Resolver : IExprVisitor<Void>
 
     private void ResolveFunction(LambdaExpr expr, FunctionType type)
     {
-        (var enclosing, _currentFunction) = (_currentFunction, type);
+        using (_ = Switch(ref _currentFunction, type))
         using (_ = CreateScope())
         {
             foreach (var param in expr.Parameters)
@@ -73,7 +73,6 @@ public sealed partial class Resolver : IExprVisitor<Void>
             Resolve(expr.Body);
             ReportVariableUsage();
         }
-        _currentFunction = enclosing;
     }
 
     Void IExprVisitor<Void>.Visit(GetExpr expr)

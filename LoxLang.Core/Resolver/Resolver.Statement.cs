@@ -42,10 +42,11 @@ public sealed partial class Resolver : IStmtVisitor<Void>
 
     Void IStmtVisitor<Void>.Visit(WhileStmt stmt)
     {
-        (var enclosint, _currentLoop) = (_currentLoop, LoopType.Loop);
-        stmt.Condition.Accept(this);
-        stmt.Body.Accept(this);
-        _currentLoop = enclosint;
+        using (_ = Switch(ref _currentLoop, LoopType.Loop))
+        {
+            stmt.Condition.Accept(this);
+            stmt.Body.Accept(this);
+        }
         return default;
     }
 
@@ -93,7 +94,7 @@ public sealed partial class Resolver : IStmtVisitor<Void>
 
     private void ResolveFunction(FunctionStmt stmt, FunctionType type)
     {
-        (var enclosing, _currentFunction) = (_currentFunction, type);
+        using (_ = Switch(ref _currentFunction, type))
         using (_ = CreateScope())
         {
             foreach (var param in stmt.Parameters)
@@ -104,6 +105,5 @@ public sealed partial class Resolver : IStmtVisitor<Void>
             Resolve(stmt.Body);
             ReportVariableUsage();
         }
-        _currentFunction = enclosing;
     }
 }
