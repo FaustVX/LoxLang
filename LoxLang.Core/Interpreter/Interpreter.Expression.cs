@@ -118,4 +118,7 @@ public sealed partial class Interpreter : IExprVisitor<object?>
         => expr.Object.Accept(this) is Instance instance
             ? instance.Set(expr.Name, expr.Value.Accept(this))
             : throw new RuntimeException(expr.Name, "Only instances have properties.");
+
+    object? IExprVisitor<object?>.Visit(ThisExpr expr)
+        => LookupVariable(expr.Keyword, expr);
 }

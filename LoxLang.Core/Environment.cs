@@ -33,6 +33,9 @@ public class Environment
             throw new RuntimeException(function.NameToken, $"variable '{function.Name}' already defined");
     }
 
+    public void DefineFun(Instance instance)
+        => _values["this"] = instance;
+
     public object? Get(Token token)
     {
         if (_values.TryGetValue(token.Lexeme.ToString(), out var value))

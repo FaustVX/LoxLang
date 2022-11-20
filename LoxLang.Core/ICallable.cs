@@ -69,6 +69,13 @@ public sealed class Function : DefinedCallable
         }
         return null;
     }
+
+    public Function Bind(Instance instance)
+    {
+        var env = new Environment(_closure);
+        env.DefineFun(instance);
+        return new Function(_stmt, env);
+    }
 }
 
 public sealed class LambdaFunction : AnonymousCallable
@@ -137,7 +144,7 @@ public class Instance
 
     public object? Get(Token name)
         => _fileds.TryGetValue(name.Lexeme.ToString(), out var value) ? value
-        :  _class.FindMethod(name.Lexeme.ToString()) is {} method ? method
+        :  _class.FindMethod(name.Lexeme.ToString()) is {} method ? method.Bind(this)
         :  throw new RuntimeException(name, $"Undefined property '{name.Lexeme}'.");
 
     public object? Set(Token name, object? value)

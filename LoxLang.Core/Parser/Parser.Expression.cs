@@ -91,6 +91,8 @@ public partial class Parser
             Consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
             return new GroupExpr(expr);
         }
+        if (MatchToken(TokenType.THIS))
+            return new ThisExpr(Previous());
         if (MatchToken(TokenType.IDENTIFIER))
             return new VariableExpr(Previous());
         if (MatchToken(TokenType.FUN))

@@ -78,10 +78,14 @@ public sealed partial class Resolver : IStmtVisitor<Void>
         Declare(stmt.Name);
         Define(stmt.Name);
 
-        foreach (var func in stmt.Methods)
+        using (var scope = CreateScope())
         {
-            var type = FunctionType.Method;
-            ResolveFunction(func, type);
+            scope.Actual["this"] = (true, true, stmt.Name);
+            foreach (var func in stmt.Methods)
+            {
+                var type = FunctionType.Method;
+                ResolveFunction(func, type);
+            }
         }
 
         return default;

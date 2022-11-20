@@ -88,4 +88,10 @@ public sealed partial class Resolver : IExprVisitor<Void>
         expr.Value.Accept(this);
         return default;
     }
+
+    Void IExprVisitor<Void>.Visit(ThisExpr expr)
+    {
+        ResolveLocal(expr, expr.Keyword);
+        return default;
+    }
 }
