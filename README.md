@@ -28,10 +28,12 @@ statement      = funsStmt
                | forStmt
                | ifStmt
                | whileStmt
+               | breakStmt
                | block ;
 funsStmt       = exprStmt
                | printStmt
                | returnStmt;
+breakStmt     = "break" ";" ;
 returnStmt     = "return" expression? ";" ;
 ifStmt         = "if" "(" expression ")" statement
                ( "else" statement )? ;

@@ -16,6 +16,12 @@ public static class Lox
         if (HasError)
             return;
 
+        var resolver = new Resolver(_interpretor);
+        resolver.Resolve(stmts);
+
+        if (HasError)
+            return;
+
         _interpretor.Interpret(stmts);
     }
 

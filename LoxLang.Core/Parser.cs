@@ -99,6 +99,12 @@ internal class Parser
             return ParseWhile();
         if (MatchToken(TokenType.FOR))
             return ParseFor();
+        if (MatchToken(TokenType.BREAK))
+        {
+            var token = Previous();
+            Consume(TokenType.SEMICOLON, "Expected ';' after 'break'.");
+            return new BreakStmt(token);
+        }
         return ParseFuncStatement();
     }
 

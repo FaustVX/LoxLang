@@ -55,6 +55,16 @@
             }
         },
         {
+            "label": "run",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "run",
+                "--project",
+                "${workspaceFolder}/LoxLang.App/LoxLang.App.csproj",
+            ],
+        },
+        {
             "label": "run current file",
             "command": "dotnet",
             "type": "process",

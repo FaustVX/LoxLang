@@ -1,4 +1,3 @@
-using Void = LoxLang.Core.Utils.Void;
 namespace LoxLang.Core;
 
 public sealed class Interpretor : IExprVisitor<object?>, IStmtVisitor<Void>
@@ -45,15 +44,23 @@ public sealed class Interpretor : IExprVisitor<object?>, IStmtVisitor<Void>
         }
     }
 
-    public static Environment GlobalEnv { get; } = new();
-    public Environment CurrentEnv { get; private set; } = new(GlobalEnv);
+    private static readonly Environment _globalEnv = new();
+    public Environment RootEnv { get; }
+    public Environment CurrentEnv { get; private set; }
+    private readonly Dictionary<Expr, int> _locals = new();
 
     static Interpretor()
     {
-        GlobalEnv.DefineFun(new ClockFun());
-        GlobalEnv.DefineFun(new ReadFun());
-        GlobalEnv.DefineFun(new PrintFun());
-        GlobalEnv.DefineFun(new BreakpointFun());
+        _globalEnv.DefineFun(new ClockFun());
+        _globalEnv.DefineFun(new ReadFun());
+        _globalEnv.DefineFun(new PrintFun());
+        _globalEnv.DefineFun(new BreakpointFun());
+    }
+
+    public Interpretor()
+    {
+        RootEnv = new(_globalEnv);
+        CurrentEnv = RootEnv;
     }
 
     public void Interpret(List<Stmt> statements)
@@ -137,12 +144,15 @@ public sealed class Interpretor : IExprVisitor<object?>, IStmtVisitor<Void>
         };
 
     object? IExprVisitor<object?>.Visit(VariableExpr expr)
-        => CurrentEnv.Get(expr.Name);
+        => LookupVariable(expr.Name, expr);
 
     object? IExprVisitor<object?>.Visit(AssignExpr expr)
     {
         var value = expr.Value.Accept(this);
-        CurrentEnv.Assign(expr.Name, value);
+        if (_locals.TryGetValue(expr, out var distance))
+            CurrentEnv.AssignAt(distance, expr.Name, value);
+        else
+            RootEnv.Assign(expr.Name, value);
         return value;
     }
 
@@ -198,8 +208,15 @@ public sealed class Interpretor : IExprVisitor<object?>, IStmtVisitor<Void>
 
     Void IStmtVisitor<Void>.Visit(WhileStmt stmt)
     {
-        while (IsTruthy(stmt.Condition.Accept(this)))
-            stmt.Body.Accept(this);
+        try
+        {
+            while (IsTruthy(stmt.Condition.Accept(this)))
+                stmt.Body.Accept(this);
+        }
+        catch (BreakControlFlowException)
+        {
+            return default;
+        }
         return default;
     }
 
@@ -213,6 +230,11 @@ public sealed class Interpretor : IExprVisitor<object?>, IStmtVisitor<Void>
     {
         var value = stmt.Expr?.Accept(this);
         throw new ReturnControlFlowException(value);
+    }
+
+    Void IStmtVisitor<Void>.Visit(BreakStmt stmt)
+    {
+        throw new BreakControlFlowException();
     }
 
     public void ExecuteBlock(List<Stmt> statements, Environment environment)
@@ -269,4 +291,16 @@ public sealed class Interpretor : IExprVisitor<object?>, IStmtVisitor<Void>
             _ => throw new RuntimeException(token, "Operands must be either both number or both string."),
 #endif
         };
+
+    public void Resolve(Expr expr, int depth)
+    {
+        _locals[expr] = depth;
+    }
+
+    private object? LookupVariable(Token name, Expr expr)
+    {
+        if (_locals.TryGetValue(expr, out var distance))
+            return CurrentEnv.GetAt(distance, name.Lexeme.ToString());
+        return RootEnv.Get(name);
+    }
 }

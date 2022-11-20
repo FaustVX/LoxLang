@@ -35,12 +35,6 @@ print a;
 print b;
 print c;
 
-a = 1;
-{
-  var a = a + 2;
-  print a;
-}
-
 fun makeCounter() {
   var i = 0;
   fun count() {

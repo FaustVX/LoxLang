@@ -10,3 +10,7 @@ public class ReturnControlFlowException : Exception
         Value = value;
     }
 }
+
+[Serializable]
+public class BreakControlFlowException : Exception
+{ }

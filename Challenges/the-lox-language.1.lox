@@ -16,7 +16,23 @@ fun fibSlow(n) {
   return fibSlow(n - 2) + fibSlow(n - 1);
 }
 
-for (var a = 0; a < 15; a = a + 1)
+fun bench(fn)
 {
-  print fibSlow(a);
+  print fn;
+  var start = clock();
+  fn();
+  print clock() - start;
+  print "";
 }
+
+fun loop(max, fn)
+{
+  for (var a = 0; a < max; a = a + 1)
+  {
+    print fn(a);
+  }
+}
+
+var n = 30;
+bench(fun():loop(n,fib););
+bench(fun():loop(n,fibSlow););

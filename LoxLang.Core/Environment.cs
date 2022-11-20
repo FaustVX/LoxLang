@@ -51,4 +51,18 @@ public class Environment
         else
             throw new RuntimeException(name, $"Undefined variable '{name.Lexeme}'");
     }
+
+    public object? GetAt(int distance, string name)
+        => Ancestor(distance)._values[name];
+
+    private Environment Ancestor(int distance)
+    {
+        var env = this;
+        for (int i = 0; i < distance; i++)
+            env = env?._enclosing;
+        return env!;
+    }
+
+    public void AssignAt(int distance, Token name, object? value)
+        => Ancestor(distance)._values[name.Lexeme.ToString()] = value;
 }

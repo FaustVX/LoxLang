@@ -1,3 +1,4 @@
+global using Void = LoxLang.Core.Utils.Void;
 using System.Runtime.InteropServices;
 
 namespace LoxLang.Core.Utils;
