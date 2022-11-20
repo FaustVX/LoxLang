@@ -64,4 +64,12 @@ public sealed partial class Interpreter : IStmtVisitor<Void>
 
     Void IStmtVisitor<Void>.Visit(BreakStmt stmt)
         => throw new BreakControlFlowException();
+
+    Void IStmtVisitor<Void>.Visit(ClassStmt stmt)
+    {
+        CurrentEnv.Define(stmt.Name, null);
+        var @class = new Class(stmt.Name);
+        CurrentEnv.Assign(stmt.Name, @class);
+        return default;
+    }
 }

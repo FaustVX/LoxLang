@@ -97,3 +97,21 @@ public sealed class LambdaFunction : AnonymousCallable
         return null;
     }
 }
+
+public sealed class Class : DefinedCallable
+{
+    public override Token NameToken { get; }
+
+    public Class(Token name)
+        => NameToken = name;
+
+    public override int Arity => throw new NotImplementedException();
+
+    public override object? Call(Interpreter interpreter, List<object?> args)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override string ToString()
+        => $"<class {Name}>";
+}

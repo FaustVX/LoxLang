@@ -10,6 +10,8 @@ partial class Parser
                 return ParseFunction(FunctionKind.Function);
             if (MatchToken(TokenType.VAR))
                 return ParseVarDeclaration();
+            if (MatchToken(TokenType.CLASS))
+                return ParseClassDeclaration();
             return ParseStatement();
         }
         catch (ParserException)
@@ -19,7 +21,18 @@ partial class Parser
         }
     }
 
-    private Stmt ParseFunction(FunctionKind funKind)
+    private Stmt ParseClassDeclaration()
+    {
+        var name = Consume(TokenType.IDENTIFIER, "Expect class name.");
+        Consume(TokenType.LEFT_BRACE, "Expect '{' before class body.");
+        var methods = new List<FunctionStmt>();
+        while (!Check(TokenType.RIGHT_BRACE) && !IsAtEnd)
+            methods.Add(ParseFunction(FunctionKind.Method));
+        Consume(TokenType.RIGHT_BRACE, "Expect '}' after class body.");
+        return new ClassStmt(name, methods);
+    }
+
+    private FunctionStmt ParseFunction(FunctionKind funKind)
     {
         var kind = funKind.ToString().ToLower();
         var name = Consume(TokenType.IDENTIFIER, $"Expect {kind} name.");

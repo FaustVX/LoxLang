@@ -16,6 +16,7 @@ Lang in C# based on [Crafting Interpreters](https://craftinginterpreters.com/con
 ```ebnf
 program        = declaration* EOF ;
 declaration    = funDecl
+               | classDecl
                | varDecl
                | statement ;
 statement      = funsStmt
@@ -29,6 +30,7 @@ expression     = assignment ;
 ### Declarations
 ```ebnf
 funDecl        = "fun" function ;
+classDecl      = "class" IDENTIFIER "{" function* "}" ;
 varDecl        = "var" IDENTIFIER ( "=" expression )? ";" ;
 ```
 ### Statements

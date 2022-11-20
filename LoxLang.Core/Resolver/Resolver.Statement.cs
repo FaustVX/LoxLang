@@ -73,6 +73,14 @@ public sealed partial class Resolver : IStmtVisitor<Void>
         return default;
     }
 
+    Void IStmtVisitor<Void>.Visit(ClassStmt stmt)
+    {
+        Declare(stmt.Name);
+        Define(stmt.Name);
+
+        return default;
+    }
+
     private void ResolveFunction(FunctionStmt stmt, FunctionType type)
     {
         (var enclosing, _currentFunction) = (_currentFunction, type);
