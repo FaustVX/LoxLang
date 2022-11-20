@@ -81,4 +81,11 @@ public sealed partial class Resolver : IExprVisitor<Void>
         expr.Object.Accept(this);
         return default;
     }
+
+    Void IExprVisitor<Void>.Visit(SetExpr expr)
+    {
+        expr.Object.Accept(this);
+        expr.Value.Accept(this);
+        return default;
+    }
 }

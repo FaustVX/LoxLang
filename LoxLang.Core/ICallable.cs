@@ -135,4 +135,7 @@ public class Instance
         => _fileds.TryGetValue(name.Lexeme.ToString(), out var value)
             ? value
             : throw new RuntimeException(name, $"Undefined property '{name.Lexeme}'.");
+
+    public object? Set(Token name, object? value)
+        => _fileds[name.Lexeme.ToString()] = value;
 }

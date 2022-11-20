@@ -14,6 +14,8 @@ public partial class Parser
             var value = ParseAssignment();
             if (expr is VariableExpr { Name: var name })
                 return new AssignExpr(name, value);
+            if (expr is GetExpr get)
+                return new SetExpr(get.Object, get.Name, value);
             GenerateError(token, "Invalid assignment target.");
         }
         return expr;

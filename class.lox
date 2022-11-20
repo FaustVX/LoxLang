@@ -9,5 +9,10 @@ class Breakfast {
 }
 
 var b = Breakfast();
+b.hello = b.test = "t";
 print b.className;
 print b;
+print b.hello;
+print b.test;
+b.cook();
+print b.hellol;
