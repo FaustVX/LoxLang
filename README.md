@@ -17,8 +17,8 @@ Lang in C# based on [Crafting Interpreters](https://craftinginterpreters.com/con
 - [implement more std library functions/classes](https://craftinginterpreters.com/the-lox-language.html#the-standard-library)
 - [implement better error handling](https://craftinginterpreters.com/scanning.html#error-handling)
 
-
 ## Grammar
+### Global
 ```ebnf
 program        = declaration* EOF ;
 declaration    = funDecl
@@ -30,29 +30,35 @@ statement      = funsStmt
                | whileStmt
                | breakStmt
                | block ;
+expression     = assignment ;
+```
+### Declarations
+```ebnf
+funDecl        = "fun" function ;
+varDecl        = "var" IDENTIFIER ( "=" expression )? ";" ;
+```
+### Statements
+```ebnf
 funsStmt       = exprStmt
                | printStmt
                | returnStmt;
-breakStmt     = "break" ";" ;
-returnStmt     = "return" expression? ";" ;
-ifStmt         = "if" "(" expression ")" statement
-               ( "else" statement )? ;
-whileStmt      = "while" "(" expression ")" statement ;
 forStmt        = "for" "(" ( varDecl | exprStmt | ";" )
                  expression? ";"
                  expression? ")" statement ;
+ifStmt         = "if" "(" expression ")" statement
+               ( "else" statement )? ;
+whileStmt      = "while" "(" expression ")" statement ;
+breakStmt      = "break" ";" ;
 block          = "{" declaration* "}" ;
-funDecl        = "fun" function ;
-function       = IDENTIFIER "(" parameters? ")" (block | ":" statement ) ;
-lambdaExpr   = "fun" "(" parameters? ")" (block | ":" statement ) ;
-parameters     = IDENTIFIER ( "," IDENTIFIER )* ;
-varDecl        = "var" IDENTIFIER ( "=" expression )? ";" ;
 exprStmt       = expression ";" ;
 printStmt      = "print" expression ";" ;
-expression     = assignment ;
+returnStmt     = "return" expression? ";" ;
+```
+### Expressions
+```ebnf
 assignment     = IDENTIFIER "=" assignment
                | logicalOr ;
-logicalOr      = logicand ( "or" logicAnd )* ;
+logicalOr      = logicalAnd ( "or" logicalAnd )* ;
 logicalAnd     = equality ( "and" equality )* ;
 equality       = comparison ( ( "!=" | "==" ) comparison )* ;
 comparison     = term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
@@ -61,10 +67,16 @@ factor         = unary ( ( "/" | "*" ) unary )* ;
 unary          = ( "!" | "-" ) unary
                | call ;
 call           = primary ( "(" arguments? ")" )* ;
-arguments      = expression ( "," expression )* ;
 primary        = NUMBER | STRING
                | "true" | "false" | "nil"
                | "(" expression ")"
                | lambdaExpr
                | IDENTIFIER ;
+lambdaExpr     = "fun" "(" parameters? ")" (block | ":" statement ) ;
+```
+### Others
+```ebnf
+arguments      = expression ( "," expression )* ;
+function       = IDENTIFIER "(" parameters? ")" (block | ":" statement ) ;
+parameters     = IDENTIFIER ( "," IDENTIFIER )* ;
 ```
