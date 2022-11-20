@@ -17,7 +17,7 @@ public sealed partial class Resolver : IStmtVisitor<Void>
     Void IStmtVisitor<Void>.Visit(VariableStmt stmt)
     {
         Declare(stmt.Name);
-        stmt.Initializer?.Accept(this);
+        stmt.Initializer.Accept(this);
         Define(stmt.Name);
         return default;
     }

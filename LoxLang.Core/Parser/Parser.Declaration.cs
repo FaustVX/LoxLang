@@ -54,12 +54,8 @@ partial class Parser
     private Stmt ParseVarDeclaration()
     {
         var name = Consume(TokenType.IDENTIFIER, "Expect variable name.");
-#if CHALLENGE_STATEMENT
         Consume(TokenType.EQUAL, $"Variable '{name.Lexeme}' must be initialized.");
         var initializer = ParseExpression();
-#else
-        var initializer = MatchToken(TokenType.EQUAL) ? ParseExpression() : null;
-#endif
         Consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
         return new VariableStmt(name, initializer);
     }

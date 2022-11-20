@@ -16,7 +16,7 @@ public sealed partial class Interpreter : IStmtVisitor<Void>
 
     Void IStmtVisitor<Void>.Visit(VariableStmt stmt)
     {
-        var value = stmt.Initializer?.Accept(this);
+        var value = stmt.Initializer.Accept(this);
         CurrentEnv.Define(stmt.Name, value);
         return default;
     }

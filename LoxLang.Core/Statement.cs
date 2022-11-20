@@ -30,7 +30,7 @@ public sealed record class PrintStmt(Expr Expr) : Stmt()
         => visitor.Visit(this);
 }
 
-public sealed record class VariableStmt(Token Name, Expr? Initializer) : Stmt()
+public sealed record class VariableStmt(Token Name, Expr Initializer) : Stmt()
 {
     public override T Accept<T>(IStmtVisitor<T> visitor)
         => visitor.Visit(this);
