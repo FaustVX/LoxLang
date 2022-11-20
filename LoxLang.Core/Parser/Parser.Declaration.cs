@@ -56,9 +56,10 @@ partial class Parser
         }
         else if (MatchToken(TokenType.COLON))
         {
-            var expr = ParseFuncStatement();
+            var token = Previous();
+            var expr = (ExprStmt)ParseExprStatement();
 
-            return new FunctionStmt(name, parameters, new() { expr });
+            return new FunctionStmt(name, parameters, new() { new ReturnStmt(token, expr.Expr) });
         }
         else
             throw GenerateError(Peek(), "Expected '{{' or ':' after function");

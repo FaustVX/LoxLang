@@ -121,9 +121,10 @@ public partial class Parser
         }
         else if (MatchToken(TokenType.COLON))
         {
-            var expr = ParseFuncStatement();
+            var token = Previous();
+            var expr = ParseExpression();
 
-            return new LambdaExpr(parameters, new() { expr });
+            return new LambdaExpr(parameters, new() { new ReturnStmt(token, expr) });
         }
         else
             throw GenerateError(Peek(), "Expected '{{' or ':' after function");

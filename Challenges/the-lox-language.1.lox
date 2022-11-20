@@ -21,18 +21,20 @@ fun bench(fn)
   print fn;
   var start = clock();
   fn();
-  print clock() - start;
+  print (clock() - start) + " sec.";
   print "";
 }
 
 fun loop(max, fn)
 {
   for (var a = 0; a < max; a = a + 1)
-  {
     print fn(a);
-  }
 }
 
+fun m()
+  : m;
+print m();
+
 var n = 30;
-bench(fun():loop(n,fib););
-bench(fun():loop(n,fibSlow););
+bench(fun():loop(n,fib));
+bench(fun():loop(n,fibSlow));

@@ -68,11 +68,11 @@ primary        = NUMBER | STRING
                | "(" expression ")"
                | lambdaExpr
                | IDENTIFIER ;
-lambdaExpr     = "fun" "(" parameters? ")" (block | ":" statement ) ;
+lambdaExpr     = "fun" "(" parameters? ")" (block | ":" expression ) ;
 ```
 ### Others
 ```ebnf
 arguments      = expression ( "," expression )* ;
-function       = IDENTIFIER "(" parameters? ")" (block | ":" statement ) ;
+function       = IDENTIFIER "(" parameters? ")" (block | ":" exprStmt ) ;
 parameters     = IDENTIFIER ( "," IDENTIFIER )* ;
 ```
