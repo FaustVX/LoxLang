@@ -3,6 +3,7 @@ namespace LoxLang.Core;
 public static class Lox
 {
     public static bool HasError { get; set; }
+    public static bool HasWarning { get; set; }
     public static bool HasRuntimeError { get; set; }
     private readonly static Interpretor _interpretor = new Interpretor();
 
@@ -34,6 +35,12 @@ public static class Lox
         HasError = true;
     }
 
+
+    private static void ReportWarning(int line, string where, string message)
+    {
+        Console.Error.WriteLine($"[line: {line}] Error{where}: {message}");
+        HasWarning = true;
+    }
     public static void Error(Token token, string message)
     {
         LaunchDebugger();
@@ -41,6 +48,15 @@ public static class Lox
             Report(token.Line, " at end", message);
         else
             Report(token.Line, $" at '{token.Lexeme}'", message);
+    }
+
+    public static void Warning(Token token, string message)
+    {
+        LaunchDebugger();
+        if (token.TokenType == TokenType.EOF)
+            ReportWarning(token.Line, " at end", message);
+        else
+            ReportWarning(token.Line, $" at '{token.Lexeme}'", message);
     }
 
     public static void RuntimeError(RuntimeException ex)

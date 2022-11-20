@@ -15,7 +15,7 @@ public sealed class Resolver : IExprVisitor<Void>, IStmtVisitor<Void>
     }
 
     private readonly Interpretor _interpretor;
-    private readonly Stack<Dictionary<string, bool>> _scopes = new();
+    private readonly Stack<Dictionary<string, (bool defined, bool accessed, Token name)>> _scopes = new();
     private FunctionType _currentFunction = FunctionType.None;
     private LoopType _currentLoop = LoopType.None;
 
@@ -53,7 +53,7 @@ public sealed class Resolver : IExprVisitor<Void>, IStmtVisitor<Void>
 
     Void IExprVisitor<Void>.Visit(VariableExpr expr)
     {
-        if (_scopes.TryPeek(out var scope) && scope.TryGetValue(expr.Name.Lexeme.ToString(), out var defined) && !defined)
+        if (_scopes.TryPeek(out var scope) && scope.TryGetValue(expr.Name.Lexeme.ToString(), out var infos) && !infos.defined)
             Lox.Error(expr.Name, "Can't read local variable in its own initializer.");
         ResolveLocal(expr, expr.Name);
         return default;
@@ -103,7 +103,10 @@ public sealed class Resolver : IExprVisitor<Void>, IStmtVisitor<Void>
     Void IStmtVisitor<Void>.Visit(BlockStmt stmt)
     {
         using (_ = CreateScope())
+        {
             Resolve(stmt.Statements);
+            ReportVariableUsage();
+        }
         return default;
     }
 
@@ -159,8 +162,9 @@ public sealed class Resolver : IExprVisitor<Void>, IStmtVisitor<Void>
         var i = 0;
         foreach (var scope in _scopes)
         {
-            if (scope.ContainsKey(name.Lexeme.ToString()))
+            if (scope.TryGetValue(name.Lexeme.ToString(), out var infos))
             {
+                scope[name.Lexeme.ToString()] = infos with { accessed = true };
                 _interpretor.Resolve(expr, i);
                 return;
             }
@@ -179,6 +183,7 @@ public sealed class Resolver : IExprVisitor<Void>, IStmtVisitor<Void>
                 Define(param);
             }
             Resolve(stmt.Body);
+            ReportVariableUsage();
         }
         _currentFunction = enclosing;
     }
@@ -194,6 +199,7 @@ public sealed class Resolver : IExprVisitor<Void>, IStmtVisitor<Void>
                 Define(param);
             }
             Resolve(expr.Body);
+            ReportVariableUsage();
         }
         _currentFunction = enclosing;
     }
@@ -204,14 +210,25 @@ public sealed class Resolver : IExprVisitor<Void>, IStmtVisitor<Void>
         {
             if (scope.ContainsKey(name.Lexeme.ToString()))
                 Lox.Error(name, "Already a variable with this name in this scope.");
-            scope[name.Lexeme.ToString()] = false;
+            scope[name.Lexeme.ToString()] = (false, false, name);
         }
     }
 
     private void Define(Token name)
     {
         if (_scopes.TryPeek(out var scope))
-            scope[name.Lexeme.ToString()] = true;
+        {
+            var infos = scope[name.Lexeme.ToString()];
+            scope[name.Lexeme.ToString()] = infos with { defined = true };
+        }
+    }
+
+    private void ReportVariableUsage()
+    {
+        if (_scopes.TryPeek(out var scope))
+            foreach (var (name, infos) in scope)
+                if (!infos.accessed)
+                    Lox.Warning(infos.name, "Variable not used.");
     }
 
     private IDisposable CreateScope()
