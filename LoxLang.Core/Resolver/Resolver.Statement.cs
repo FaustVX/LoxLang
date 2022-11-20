@@ -78,6 +78,12 @@ public sealed partial class Resolver : IStmtVisitor<Void>
         Declare(stmt.Name);
         Define(stmt.Name);
 
+        foreach (var func in stmt.Methods)
+        {
+            var type = FunctionType.Method;
+            ResolveFunction(func, type);
+        }
+
         return default;
     }
 

@@ -15,4 +15,4 @@ print b;
 print b.hello;
 print b.test;
 b.cook();
-print b.hellol;
+// print b.hellol;

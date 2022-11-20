@@ -68,7 +68,8 @@ public sealed partial class Interpreter : IStmtVisitor<Void>
     Void IStmtVisitor<Void>.Visit(ClassStmt stmt)
     {
         CurrentEnv.Define(stmt.Name, null);
-        var @class = new Class(stmt.Name);
+        var methods = stmt.Methods.ToDictionary(static f => f.Name.Lexeme.ToString(), f => new Function(f, CurrentEnv));
+        var @class = new Class(stmt.Name, methods);
         CurrentEnv.Assign(stmt.Name, @class);
         return default;
     }

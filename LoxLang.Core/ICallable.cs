@@ -101,9 +101,10 @@ public sealed class LambdaFunction : AnonymousCallable
 public sealed class Class : DefinedCallable
 {
     public override Token NameToken { get; }
+    private readonly Dictionary<string, Function> _methods;
 
-    public Class(Token name)
-        => NameToken = name;
+    public Class(Token name, Dictionary<string, Function> methods)
+        => (NameToken, _methods) = (name, methods);
 
     public override int Arity => 0;
 
@@ -112,6 +113,9 @@ public sealed class Class : DefinedCallable
 
     public override string ToString()
         => $"<class {Name}>";
+
+    public Function? FindMethod(string name)
+        => _methods.TryGetValue(name, out var method) ? method : null;
 }
 
 public class Instance
@@ -132,9 +136,9 @@ public class Instance
         => $"<{_class.Name}>";
 
     public object? Get(Token name)
-        => _fileds.TryGetValue(name.Lexeme.ToString(), out var value)
-            ? value
-            : throw new RuntimeException(name, $"Undefined property '{name.Lexeme}'.");
+        => _fileds.TryGetValue(name.Lexeme.ToString(), out var value) ? value
+        :  _class.FindMethod(name.Lexeme.ToString()) is {} method ? method
+        :  throw new RuntimeException(name, $"Undefined property '{name.Lexeme}'.");
 
     public object? Set(Token name, object? value)
         => _fileds[name.Lexeme.ToString()] = value;
