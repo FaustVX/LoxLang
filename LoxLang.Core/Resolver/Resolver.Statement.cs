@@ -76,16 +76,19 @@ public sealed partial class Resolver : IStmtVisitor<Void>
 
     Void IStmtVisitor<Void>.Visit(ClassStmt stmt)
     {
-        Declare(stmt.Name);
-        Define(stmt.Name);
-
-        using (var scope = CreateScope())
+        using (_ = Switch(ref _currentClass, ClassType.Class))
         {
-            scope.Actual["this"] = (true, true, stmt.Name);
-            foreach (var func in stmt.Methods)
+            Declare(stmt.Name);
+            Define(stmt.Name);
+
+            using (var scope = CreateScope())
             {
-                var type = FunctionType.Method;
-                ResolveFunction(func, type);
+                scope.Actual["this"] = (true, true, stmt.Name);
+                foreach (var func in stmt.Methods)
+                {
+                    var type = FunctionType.Method;
+                    ResolveFunction(func, type);
+                }
             }
         }
 

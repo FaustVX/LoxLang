@@ -90,7 +90,10 @@ public sealed partial class Resolver : IExprVisitor<Void>
 
     Void IExprVisitor<Void>.Visit(ThisExpr expr)
     {
-        ResolveLocal(expr, expr.Keyword);
+        if (_currentClass is ClassType.None)
+            Lox.Error(expr.Keyword, "Can't use 'this' outside of a class.");
+        else
+            ResolveLocal(expr, expr.Keyword);
         return default;
     }
 }

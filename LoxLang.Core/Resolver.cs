@@ -9,6 +9,12 @@ public sealed partial class Resolver
         Method,
     }
 
+    private enum ClassType
+    {
+        None,
+        Class,
+    }
+
     private enum LoopType
     {
         None,
@@ -18,6 +24,7 @@ public sealed partial class Resolver
     private readonly Interpreter _interpreter;
     private readonly Stack<Dictionary<string, (bool defined, bool accessed, Token name)>> _scopes = new();
     private FunctionType _currentFunction = FunctionType.None;
+    private ClassType _currentClass = ClassType.None;
     private LoopType _currentLoop = LoopType.None;
 
     public Resolver(Interpreter interpreter)
