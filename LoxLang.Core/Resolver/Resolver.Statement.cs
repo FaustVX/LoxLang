@@ -63,7 +63,12 @@ public sealed partial class Resolver : IStmtVisitor<Void>
     {
         if (_currentFunction is FunctionType.None)
             Lox.Error(stmt.keyword, "Can't return from top-level code.");
-        stmt.Expr?.Accept(this);
+        if (stmt.Expr is {} value)
+        {
+            if (_currentFunction is FunctionType.Initializer)
+                Lox.Error(stmt.keyword, "Can't return a value from an initializer.");
+            stmt.Expr?.Accept(this);
+        }
         return default;
     }
 
@@ -86,7 +91,7 @@ public sealed partial class Resolver : IStmtVisitor<Void>
                 scope.Actual["this"] = (true, true, stmt.Name);
                 foreach (var func in stmt.Methods)
                 {
-                    var type = FunctionType.Method;
+                    var type = func.Name.Lexeme.ToString() == "init" ? FunctionType.Initializer : FunctionType.Method;
                     ResolveFunction(func, type);
                 }
             }

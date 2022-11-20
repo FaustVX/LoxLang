@@ -7,6 +7,7 @@ public sealed partial class Resolver
         None,
         Function,
         Method,
+        Initializer,
     }
 
     private enum ClassType

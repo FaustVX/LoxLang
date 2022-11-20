@@ -45,8 +45,10 @@ public sealed class Function : DefinedCallable
 {
     private readonly FunctionStmt _stmt;
     private readonly Environment _closure;
-    public Function(FunctionStmt stmt, Environment closure)
-        => (_stmt, _closure) = (stmt, closure);
+    private readonly bool _isInit;
+
+    public Function(FunctionStmt stmt, Environment closure, bool isInit)
+        => (_stmt, _closure, _isInit) = (stmt, closure, isInit);
 
     public override int Arity
         => _stmt.Parameters.Count;
@@ -65,8 +67,12 @@ public sealed class Function : DefinedCallable
         }
         catch (ReturnControlFlowException ex)
         {
+            if (_isInit)
+                return _closure.GetAt(0, "init");
             return ex.Value;
         }
+        if (_isInit)
+            return _closure.GetAt(0, "this");
         return null;
     }
 
@@ -74,7 +80,7 @@ public sealed class Function : DefinedCallable
     {
         var env = new Environment(_closure);
         env.DefineFun(instance);
-        return new Function(_stmt, env);
+        return new Function(_stmt, env, _isInit);
     }
 }
 
@@ -113,10 +119,14 @@ public sealed class Class : DefinedCallable
     public Class(Token name, Dictionary<string, Function> methods)
         => (NameToken, _methods) = (name, methods);
 
-    public override int Arity => 0;
+    public override int Arity => FindMethod("init")?.Arity ?? 0;
 
     public override object? Call(Interpreter interpreter, List<object?> args)
-        => new Instance(this);
+    {
+        var instance = new Instance(this);
+        FindMethod("init")?.Bind(instance).Call(interpreter, args);
+        return instance;
+    }
 
     public override string ToString()
         => $"<class {Name}>";

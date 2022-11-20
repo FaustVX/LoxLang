@@ -52,7 +52,7 @@ public sealed partial class Interpreter : IStmtVisitor<Void>
 
     Void IStmtVisitor<Void>.Visit(FunctionStmt stmt)
     {
-        CurrentEnv.DefineFun(new Function(stmt, CurrentEnv));
+        CurrentEnv.DefineFun(new Function(stmt, CurrentEnv, false));
         return default;
     }
 
@@ -68,7 +68,7 @@ public sealed partial class Interpreter : IStmtVisitor<Void>
     Void IStmtVisitor<Void>.Visit(ClassStmt stmt)
     {
         CurrentEnv.Define(stmt.Name, null);
-        var methods = stmt.Methods.ToDictionary(static f => f.Name.Lexeme.ToString(), f => new Function(f, CurrentEnv));
+        var methods = stmt.Methods.ToDictionary(static f => f.Name.Lexeme.ToString(), f => new Function(f, CurrentEnv, f.Name.Lexeme.ToString() == "init"));
         var @class = new Class(stmt.Name, methods);
         CurrentEnv.Assign(stmt.Name, @class);
         return default;
