@@ -6,6 +6,14 @@ public sealed partial class Resolver
     {
         None,
         Function,
+        Method,
+        Initializer,
+    }
+
+    private enum ClassType
+    {
+        None,
+        Class,
     }
 
     private enum LoopType
@@ -17,6 +25,7 @@ public sealed partial class Resolver
     private readonly Interpreter _interpreter;
     private readonly Stack<Dictionary<string, (bool defined, bool accessed, Token name)>> _scopes = new();
     private FunctionType _currentFunction = FunctionType.None;
+    private ClassType _currentClass = ClassType.None;
     private LoopType _currentLoop = LoopType.None;
 
     public Resolver(Interpreter interpreter)
@@ -70,17 +79,19 @@ public sealed partial class Resolver
                     Lox.Warning(infos.name, "Variable not used.");
     }
 
-    private IDisposable CreateScope()
-        => new Scope(this);
+    private Scope CreateScope()
+        => new(this);
 
     private readonly struct Scope : IDisposable
     {
         private readonly Resolver _resolver;
 
+        public Dictionary<string, (bool defined, bool accessed, Token name)> Actual { get; }
+
         public Scope(Resolver resolver)
         {
             _resolver = resolver;
-            _resolver._scopes.Push(new());
+            _resolver._scopes.Push(Actual = new());
         }
 
         void IDisposable.Dispose()

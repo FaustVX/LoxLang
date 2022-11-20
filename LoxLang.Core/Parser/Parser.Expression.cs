@@ -14,6 +14,8 @@ public partial class Parser
             var value = ParseAssignment();
             if (expr is VariableExpr { Name: var name })
                 return new AssignExpr(name, value);
+            if (expr is GetExpr get)
+                return new SetExpr(get.Object, get.Name, value);
             GenerateError(token, "Invalid assignment target.");
         }
         return expr;
@@ -51,6 +53,8 @@ public partial class Parser
         {
             if (MatchToken(TokenType.LEFT_PAREN))
                 expr = FinishCall(expr);
+            if (MatchToken(TokenType.DOT))
+                expr = new GetExpr(expr, Consume(TokenType.IDENTIFIER, "Expect property name after '.'."));
             else
                 break;
         }
@@ -87,6 +91,8 @@ public partial class Parser
             Consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
             return new GroupExpr(expr);
         }
+        if (MatchToken(TokenType.THIS))
+            return new ThisExpr(Previous());
         if (MatchToken(TokenType.IDENTIFIER))
             return new VariableExpr(Previous());
         if (MatchToken(TokenType.FUN))

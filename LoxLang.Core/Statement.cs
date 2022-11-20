@@ -11,6 +11,7 @@ public interface IStmtVisitor<T>
     T Visit(FunctionStmt stmt);
     T Visit(ReturnStmt stmt);
     T Visit(BreakStmt stmt);
+    T Visit(ClassStmt stmt);
 }
 
 public abstract record class Stmt()
@@ -70,6 +71,12 @@ public sealed record class ReturnStmt(Token keyword, Expr? Expr) : Stmt()
 }
 
 public sealed record class BreakStmt(Token keyword) : Stmt()
+{
+    public override T Accept<T>(IStmtVisitor<T> visitor)
+        => visitor.Visit(this);
+}
+
+public sealed record class ClassStmt(Token Name, List<FunctionStmt> Methods) : Stmt()
 {
     public override T Accept<T>(IStmtVisitor<T> visitor)
         => visitor.Visit(this);

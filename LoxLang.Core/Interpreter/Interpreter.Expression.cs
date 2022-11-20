@@ -108,4 +108,17 @@ public sealed partial class Interpreter : IExprVisitor<object?>
             (double l, string r) => l + r,
             _ => throw new RuntimeException(token, "Operands must be either a number or a string."),
         };
+
+    object? IExprVisitor<object?>.Visit(GetExpr expr)
+        => expr.Object.Accept(this) is Instance instance
+            ? instance.Get(expr.Name)
+            : throw new RuntimeException(expr.Name, "Only instances have properties.");
+
+    object? IExprVisitor<object?>.Visit(SetExpr expr)
+        => expr.Object.Accept(this) is Instance instance
+            ? instance.Set(expr.Name, expr.Value.Accept(this))
+            : throw new RuntimeException(expr.Name, "Only instances have properties.");
+
+    object? IExprVisitor<object?>.Visit(ThisExpr expr)
+        => LookupVariable(expr.Keyword, expr);
 }

@@ -62,7 +62,7 @@ public sealed partial class Resolver : IExprVisitor<Void>
 
     private void ResolveFunction(LambdaExpr expr, FunctionType type)
     {
-        (var enclosing, _currentFunction) = (_currentFunction, type);
+        using (_ = Switch(ref _currentFunction, type))
         using (_ = CreateScope())
         {
             foreach (var param in expr.Parameters)
@@ -73,6 +73,27 @@ public sealed partial class Resolver : IExprVisitor<Void>
             Resolve(expr.Body);
             ReportVariableUsage();
         }
-        _currentFunction = enclosing;
+    }
+
+    Void IExprVisitor<Void>.Visit(GetExpr expr)
+    {
+        expr.Object.Accept(this);
+        return default;
+    }
+
+    Void IExprVisitor<Void>.Visit(SetExpr expr)
+    {
+        expr.Object.Accept(this);
+        expr.Value.Accept(this);
+        return default;
+    }
+
+    Void IExprVisitor<Void>.Visit(ThisExpr expr)
+    {
+        if (_currentClass is ClassType.None)
+            Lox.Error(expr.Keyword, "Can't use 'this' outside of a class.");
+        else
+            ResolveLocal(expr, expr.Keyword);
+        return default;
     }
 }
