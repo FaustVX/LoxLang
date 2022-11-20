@@ -8,11 +8,9 @@ public sealed partial class Interpreter : IExprVisitor<object?>
             (TokenType.MINUS, var left, var right)
                 when CheckNumberOperand(left, expr.Operator, out var l) && CheckNumberOperand(right, expr.Operator, out var r)
                 => l - r,
-#if CHALLENGE_INTERPRET
             (TokenType.SLASH, var left, var right)
                 when CheckNumberOperand(left, expr.Operator, out var l) && CheckNumberOperand(right, expr.Operator, out var r) && r is 0
                 => throw new RuntimeException(expr.Operator, "Division by 0 occured."),
-#endif
             (TokenType.SLASH, var left, var right)
                 when CheckNumberOperand(left, expr.Operator, out var l) && CheckNumberOperand(right, expr.Operator, out var r)
                 => l / r,
@@ -106,12 +104,8 @@ public sealed partial class Interpreter : IExprVisitor<object?>
         {
             (double l, double r) => l + r,
             (string l, string r) => l + r,
-#if CHALLENGE_INTERPRET
             (string l, double r) => l + r,
             (double l, string r) => l + r,
             _ => throw new RuntimeException(token, "Operands must be either a number or a string."),
-#else
-            _ => throw new RuntimeException(token, "Operands must be either both number or both string."),
-#endif
         };
 }
