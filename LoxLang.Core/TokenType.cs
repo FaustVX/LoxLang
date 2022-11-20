@@ -20,7 +20,4 @@ public enum TokenType
     PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE, BREAK,
 
     EOF,
-#if CHALLENGE_SCANNING
-    COMMENT, MULTILINECOMMENT
-#endif
 }

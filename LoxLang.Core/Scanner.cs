@@ -84,17 +84,8 @@ public class Scanner
                 break;
             case '/':
                 if (MatchCurrent('/'))
-                {
                     while (Peek() != '\n' && !IsAtEnd)
                         Advance();
-#if CHALLENGE_SCANNING
-                    AddToken(TokenType.COMMENT);
-                }
-                else if (MatchCurrent('*'))
-                {
-                    MultiLineComment();
-#endif
-                }
                 else
                     AddToken(TokenType.SLASH);
                 break;
@@ -119,31 +110,6 @@ public class Scanner
                 break;
         }
     }
-
-#if CHALLENGE_SCANNING
-    private void MultiLineComment()
-    {
-        while (Peek() != '*' && PeekNext() != '/' && !IsAtEnd)
-        {
-            if (Peek() == '\n')
-                line++;
-            Advance();
-        }
-        if (IsAtEnd || Peek() != '*')
-        {
-            Lox.Error(line, "Unterminated comment");
-            return;
-        }
-        Advance();
-        if (IsAtEnd || Peek() != '/')
-        {
-            Lox.Error(line, "Unterminated comment");
-            return;
-        }
-        Advance();
-        AddToken(TokenType.MULTILINECOMMENT);
-    }
-#endif
 
     private void Identifier()
     {
