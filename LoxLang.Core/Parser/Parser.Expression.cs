@@ -51,6 +51,8 @@ public partial class Parser
         {
             if (MatchToken(TokenType.LEFT_PAREN))
                 expr = FinishCall(expr);
+            if (MatchToken(TokenType.DOT))
+                expr = new GetExpr(expr, Consume(TokenType.IDENTIFIER, "Expect property name after '.'."));
             else
                 break;
         }

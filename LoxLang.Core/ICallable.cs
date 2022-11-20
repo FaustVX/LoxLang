@@ -105,13 +105,34 @@ public sealed class Class : DefinedCallable
     public Class(Token name)
         => NameToken = name;
 
-    public override int Arity => throw new NotImplementedException();
+    public override int Arity => 0;
 
     public override object? Call(Interpreter interpreter, List<object?> args)
-    {
-        throw new NotImplementedException();
-    }
+        => new Instance(this);
 
     public override string ToString()
         => $"<class {Name}>";
+}
+
+public class Instance
+{
+    private readonly Class _class;
+    private readonly Dictionary<string, object?> _fileds;
+
+    public Instance(Class @class)
+    {
+        _class = @class;
+        _fileds = new()
+        {
+            ["className"] = _class.Name,
+        };
+    }
+
+    public override string ToString()
+        => $"<{_class.Name}>";
+
+    public object? Get(Token name)
+        => _fileds.TryGetValue(name.Lexeme.ToString(), out var value)
+            ? value
+            : throw new RuntimeException(name, $"Undefined property '{name.Lexeme}'.");
 }

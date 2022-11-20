@@ -8,4 +8,6 @@ class Breakfast {
   }
 }
 
-print Breakfast;
+var b = Breakfast();
+print b.className;
+print b;

@@ -75,4 +75,10 @@ public sealed partial class Resolver : IExprVisitor<Void>
         }
         _currentFunction = enclosing;
     }
+
+    Void IExprVisitor<Void>.Visit(GetExpr expr)
+    {
+        expr.Object.Accept(this);
+        return default;
+    }
 }
