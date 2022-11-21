@@ -35,30 +35,54 @@ partial class Parser
     private FunctionStmt ParseFunction(FunctionKind funKind)
     {
         var kind = funKind.ToString().ToLower();
+        var isStatic = (funKind, Peek()) is (FunctionKind.Method, { TokenType: TokenType.CLASS });
+        if (isStatic)
+            Advance();
         var name = Consume(TokenType.IDENTIFIER, $"Expect {kind} name.");
 
-        var paren = Consume(TokenType.LEFT_PAREN, $"Expect '(' after {kind} name.");
-        var parameters = new List<Token>();
-        if (!Check(TokenType.RIGHT_PAREN))
-            do
+        if (MatchToken(TokenType.LEFT_PAREN))
+        {
+            var parameters = new List<Token>();
+            if (!Check(TokenType.RIGHT_PAREN))
+                do
+                {
+                    if (parameters.Count >= 255)
+                        GenerateError(Peek(), "Can't have more than 255 parameters.");
+                    parameters.Add(Consume(TokenType.IDENTIFIER, "Expect parameter name."));
+                } while (MatchToken(TokenType.COMMA));
+            Consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters.");
+
+            if (MatchToken(TokenType.LEFT_BRACE))
             {
-                if (parameters.Count >= 255)
-                    GenerateError(Peek(), "Can't have more than 255 parameters.");
-                parameters.Add(Consume(TokenType.IDENTIFIER, "Expect parameter name."));
-            } while (MatchToken(TokenType.COMMA));
-        Consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters.");
+                var body = ParseBlockStatement();
+
+                return isStatic ? new StaticFuncStmt(name, parameters, body) : new FunctionStmt(name, parameters, body);
+            }
+            else if (MatchToken(TokenType.COLON))
+            {
+                var token = Previous();
+                var expr = (ExprStmt)ParseExprStatement();
+
+                return isStatic ? new StaticFuncStmt(name, parameters, new() { new ReturnStmt(token, expr.Expr) }) : new FunctionStmt(name, parameters, new() { new ReturnStmt(token, expr.Expr) });
+            }
+            else
+                throw GenerateError(Peek(), "Expected '{{' or ':' after function");
+        }
+        else if (funKind is FunctionKind.Function)
+            throw GenerateError(Peek(), $"Expect '(' after {kind} name.");
 
         if (MatchToken(TokenType.LEFT_BRACE))
         {
             var body = ParseBlockStatement();
 
-            return new FunctionStmt(name, parameters, body);
+            return new GetterStmt(name, body);
         }
         else if (MatchToken(TokenType.COLON))
         {
-            var expr = ParseFuncStatement();
+            var token = Previous();
+            var expr = (ExprStmt)ParseExprStatement();
 
-            return new FunctionStmt(name, parameters, new() { expr });
+            return new GetterStmt(name, new() { new ReturnStmt(token, expr.Expr) });
         }
         else
             throw GenerateError(Peek(), "Expected '{{' or ':' after function");

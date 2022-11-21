@@ -55,6 +55,8 @@ public sealed class Function : DefinedCallable
 
     public override Token NameToken
         => _stmt.Name;
+    public bool IsGetter => _stmt is GetterStmt;
+    public bool IsStatic => _stmt is StaticFuncStmt;
 
     public override object? Call(Interpreter interpreter, List<object?> args)
     {
@@ -154,8 +156,12 @@ public class Instance
 
     public object? Get(Token name)
         => _fileds.TryGetValue(name.Lexeme.ToString(), out var value) ? value
-        :  _class.FindMethod(name.Lexeme.ToString()) is {} method ? method.Bind(this)
-        :  throw new RuntimeException(name, $"Undefined property '{name.Lexeme}'.");
+        :  _class.FindMethod(name.Lexeme.ToString()) switch
+        {
+            { IsStatic: true } method => method,
+            {} method => method.Bind(this),
+            _ => throw new RuntimeException(name, $"Undefined property '{name.Lexeme}'.")
+        };
 
     public object? Set(Token name, object? value)
         => _fileds[name.Lexeme.ToString()] = value;

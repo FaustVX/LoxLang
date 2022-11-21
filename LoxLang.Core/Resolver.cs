@@ -22,11 +22,18 @@ public sealed partial class Resolver
         Loop,
     }
 
+    private enum StaticType
+    {
+        None,
+        Static,
+    }
+
     private readonly Interpreter _interpreter;
     private readonly Stack<Dictionary<string, (bool defined, bool accessed, Token name)>> _scopes = new();
     private FunctionType _currentFunction = FunctionType.None;
     private ClassType _currentClass = ClassType.None;
     private LoopType _currentLoop = LoopType.None;
+    private StaticType _currentStatic = StaticType.None;
 
     public Resolver(Interpreter interpreter)
         => _interpreter = interpreter;

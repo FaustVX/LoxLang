@@ -92,6 +92,8 @@ public sealed partial class Resolver : IExprVisitor<Void>
     {
         if (_currentClass is ClassType.None)
             Lox.Error(expr.Keyword, "Can't use 'this' outside of a class.");
+        else if (_currentStatic is StaticType.Static)
+            Lox.Error(expr.Keyword, "Can't use 'this' inside static method.");
         else
             ResolveLocal(expr, expr.Keyword);
         return default;
