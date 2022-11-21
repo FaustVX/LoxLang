@@ -86,6 +86,18 @@ public sealed partial class Resolver : IStmtVisitor<Void>
             Declare(stmt.Name);
             Define(stmt.Name);
 
+            var superScope = new Scope(this);
+            if (stmt.Super is {} super)
+            {
+                if (super.Name.Lexeme.ToString() == stmt.Name.Lexeme.ToString())
+                    Lox.Error(super.Name, "A class can't inherit from itself.");
+                _currentClass = ClassType.SubClass;
+                super.Accept(this);
+                superScope.Push();
+                superScope.Actual["super"] = (true, true, super.Name);
+            }
+
+
             var group = stmt.Methods.GroupBy(static m => m is StaticFuncStmt).ToDictionary(static g => g.Key, static g => g.AsEnumerable());
 
             if (group.TryGetValue(true, out var _static))
@@ -104,6 +116,9 @@ public sealed partial class Resolver : IStmtVisitor<Void>
                         ResolveFunction(func, type);
                     }
             }
+
+            if (stmt.Super is not null)
+                superScope.Pop();
         }
 
         return default;

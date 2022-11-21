@@ -30,7 +30,8 @@ expression     = assignment ;
 ### Declarations
 ```ebnf
 funDecl        = "fun" function ;
-classDecl      = "class" IDENTIFIER "{" (( "class"? function) | getter)* "}" ;
+classDecl      = "class" IDENTIFIER ( ":" IDENTIFIER )?
+                 "{" (( "class"? function) | getter)* "}" ;
 varDecl        = "var" IDENTIFIER ( "=" expression )? ";" ;
 ```
 ### Statements
@@ -67,7 +68,8 @@ primary        = NUMBER | STRING
                | "true" | "false" | "nil"
                | "(" expression ")"
                | lambdaExpr
-               | IDENTIFIER ;
+               | IDENTIFIER
+               | "super" "." IDENTIFIER ;
 lambdaExpr     = "fun" "(" parameters? ")" (block | ":" expression ) ;
 ```
 ### Others

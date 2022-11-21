@@ -88,7 +88,7 @@ public sealed record class BreakStmt(Token keyword) : Stmt()
         => visitor.Visit(this);
 }
 
-public sealed record class ClassStmt(Token Name, List<FunctionStmt> Methods) : Stmt()
+public sealed record class ClassStmt(Token Name, VariableExpr? Super, List<FunctionStmt> Methods) : Stmt()
 {
     public override T Accept<T>(IStmtVisitor<T> visitor)
         => visitor.Visit(this);

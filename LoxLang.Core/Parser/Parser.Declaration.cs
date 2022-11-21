@@ -24,12 +24,13 @@ partial class Parser
     private Stmt ParseClassDeclaration()
     {
         var name = Consume(TokenType.IDENTIFIER, "Expect class name.");
+        var super = MatchToken(TokenType.COLON) ? new VariableExpr(Consume(TokenType.IDENTIFIER, "Expect superclass name.")) : null;
         Consume(TokenType.LEFT_BRACE, "Expect '{' before class body.");
         var methods = new List<FunctionStmt>();
         while (!Check(TokenType.RIGHT_BRACE) && !IsAtEnd)
             methods.Add(ParseFunction(FunctionKind.Method));
         Consume(TokenType.RIGHT_BRACE, "Expect '}' after class body.");
-        return new ClassStmt(name, methods);
+        return new ClassStmt(name, super, methods);
     }
 
     private FunctionStmt ParseFunction(FunctionKind funKind)

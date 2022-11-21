@@ -1,13 +1,24 @@
-class Breakfast {
+class Base {
   cook() {
     print "Eggs a-fryin'!";
   }
+}
+
+class Breakfast : Base {
+  cook() {
+    super.cook();
+    print "Eggs a-fryin'!!!!!!!!!!!";
+  }
+
+  getSuper: super.cook;
 
   serve(who) {
     print "Enjoy your breakfast, " + who + ".";
   }
   square : this.length * this.length;
 }
+
+class Beacon : Breakfast {}
 
 var b = Breakfast();
 b.length = 10;
@@ -17,5 +28,5 @@ print b.className;
 print b;
 print b.hello;
 print b.test;
-b.cook();
+Beacon().getSuper();
 // print b.hellol;
