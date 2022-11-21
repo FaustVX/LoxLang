@@ -91,6 +91,13 @@ public partial class Parser
             Consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
             return new GroupExpr(expr);
         }
+        if (MatchToken(TokenType.SUPER))
+        {
+            var token = Previous();
+            Consume(TokenType.DOT, "Expect '.' after 'super'.");
+            var method = Consume(TokenType.IDENTIFIER, "Expect superclass method name.");
+            return new SuperExpr(token, method);
+        }
         if (MatchToken(TokenType.THIS))
             return new ThisExpr(Previous());
         if (MatchToken(TokenType.IDENTIFIER))

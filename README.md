@@ -68,7 +68,8 @@ primary        = NUMBER | STRING
                | "true" | "false" | "nil"
                | "(" expression ")"
                | lambdaExpr
-               | IDENTIFIER ;
+               | IDENTIFIER
+               | "super" "." IDENTIFIER ;
 lambdaExpr     = "fun" "(" parameters? ")" (block | ":" expression ) ;
 ```
 ### Others

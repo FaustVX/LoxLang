@@ -2,14 +2,14 @@ namespace LoxLang.Core;
 
 public class Environment
 {
-    private readonly Environment? _enclosing;
+    public Environment? Enclosing { get; }
     private readonly Dictionary<string, object?> _values = new();
 
     public Environment()
-        => _enclosing = null;
+        => Enclosing = null;
 
     public Environment(Environment enclosing)
-        => _enclosing = enclosing;
+        => Enclosing = enclosing;
 
     public void Define(Token name, object? value)
     {
@@ -36,11 +36,14 @@ public class Environment
     public void DefineFun(Instance instance)
         => _values["this"] = instance;
 
+    public void DefineFun(Class c)
+        => _values["super"] = c;
+
     public object? Get(Token token)
     {
         if (_values.TryGetValue(token.Lexeme.ToString(), out var value))
             return value;
-        if (_enclosing is {} env)
+        if (Enclosing is {} env)
             return env.Get(token);
         throw new RuntimeException(token, $"Undefined variable '{token.Lexeme}'.");
     }
@@ -49,7 +52,7 @@ public class Environment
     {
         if (_values.ContainsKey(name.Lexeme.ToString()))
             _values[name.Lexeme.ToString()] = value;
-        else if (_enclosing is {} env)
+        else if (Enclosing is {} env)
             env.Assign(name, value);
         else
             throw new RuntimeException(name, $"Undefined variable '{name.Lexeme}'");
@@ -62,7 +65,7 @@ public class Environment
     {
         var env = this;
         for (int i = 0; i < distance; i++)
-            env = env?._enclosing;
+            env = env?.Enclosing;
         return env!;
     }
 

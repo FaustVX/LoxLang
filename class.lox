@@ -6,8 +6,11 @@ class Base {
 
 class Breakfast : Base {
   cook() {
+    super.cook();
     print "Eggs a-fryin'!!!!!!!!!!!";
   }
+
+  getSuper: super.cook;
 
   serve(who) {
     print "Enjoy your breakfast, " + who + ".";
@@ -25,5 +28,5 @@ print b.className;
 print b;
 print b.hello;
 print b.test;
-b.cook();
+Beacon().getSuper();
 // print b.hellol;

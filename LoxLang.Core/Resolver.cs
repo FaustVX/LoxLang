@@ -14,6 +14,7 @@ public sealed partial class Resolver
     {
         None,
         Class,
+        SubClass,
     }
 
     private enum LoopType
@@ -87,21 +88,28 @@ public sealed partial class Resolver
     }
 
     private Scope CreateScope()
-        => new(this);
+    {
+        var scope = new Scope(this);
+        scope.Push();
+        return scope;
+    }
 
     private readonly struct Scope : IDisposable
     {
         private readonly Resolver _resolver;
 
-        public Dictionary<string, (bool defined, bool accessed, Token name)> Actual { get; }
+        public Dictionary<string, (bool defined, bool accessed, Token name)> Actual { get; } = new();
 
         public Scope(Resolver resolver)
-        {
-            _resolver = resolver;
-            _resolver._scopes.Push(Actual = new());
-        }
+            => _resolver = resolver;
+
+        public void Push()
+            => _resolver._scopes.Push(Actual);
 
         void IDisposable.Dispose()
+            => Pop();
+
+        public void Pop()
             => _resolver._scopes.Pop();
     }
 }

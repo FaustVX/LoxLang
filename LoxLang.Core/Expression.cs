@@ -14,6 +14,7 @@ public interface IExprVisitor<T>
     T Visit(GetExpr expr);
     T Visit(SetExpr expr);
     T Visit(ThisExpr expr);
+    T Visit(SuperExpr expr);
 }
 
 public abstract record class Expr()
@@ -86,6 +87,12 @@ public sealed record class SetExpr(Expr Object, Token Name, Expr Value) : Expr()
 }
 
 public sealed record class ThisExpr(Token Keyword) : Expr()
+{
+    public override T Accept<T>(IExprVisitor<T> visitor)
+        => visitor.Visit(this);
+}
+
+public sealed record class SuperExpr(Token Keyword, Token Method) : Expr()
 {
     public override T Accept<T>(IExprVisitor<T> visitor)
         => visitor.Visit(this);

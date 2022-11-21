@@ -128,4 +128,15 @@ public sealed partial class Interpreter : IExprVisitor<object?>
 
     object? IExprVisitor<object?>.Visit(ThisExpr expr)
         => LookupVariable(expr.Keyword, expr);
+
+    object? IExprVisitor<object?>.Visit(SuperExpr expr)
+    {
+        var distance = _locals[expr];
+        var super = (Class?)CurrentEnv.GetAt(distance, "super");
+        var obj = (Instance?)CurrentEnv.GetAt(distance - 1, "this");
+        var method = super?.FindMethod(expr.Method.Lexeme.ToString());
+        if (method is null)
+            throw new RuntimeException(expr.Method, $"Undefined property '{expr.Method.Lexeme}'.");
+        return method.Bind(obj!);
+    }
 }

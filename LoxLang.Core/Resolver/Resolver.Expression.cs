@@ -98,4 +98,14 @@ public sealed partial class Resolver : IExprVisitor<Void>
             ResolveLocal(expr, expr.Keyword);
         return default;
     }
+
+    Void IExprVisitor<Void>.Visit(SuperExpr expr)
+    {
+        if (_currentClass is ClassType.None)
+            Lox.Error(expr.Keyword, "Can't use 'super' outside of a class.");
+        else if (_currentClass is not ClassType.SubClass)
+            Lox.Error(expr.Keyword, "Can't use 'super' in a class with no superclass.");
+        ResolveLocal(expr, expr.Keyword);
+        return default;
+    }
 }
