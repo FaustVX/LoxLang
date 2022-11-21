@@ -86,14 +86,23 @@ public sealed partial class Resolver : IStmtVisitor<Void>
             Declare(stmt.Name);
             Define(stmt.Name);
 
-            using (var scope = CreateScope())
-            {
-                scope.Actual["this"] = (true, true, stmt.Name);
-                foreach (var func in stmt.Methods)
+            var group = stmt.Methods.GroupBy(static m => m is StaticFuncStmt).ToDictionary(static g => g.Key, static g => g.AsEnumerable());
+
+            if (group.TryGetValue(true, out var _static))
+                foreach (var func in _static)
                 {
                     var type = func.Name.Lexeme.ToString() == "init" ? FunctionType.Initializer : FunctionType.Method;
                     ResolveFunction(func, type);
                 }
+            using (var scope = CreateScope())
+            {
+                scope.Actual["this"] = (true, true, stmt.Name);
+                if (group.TryGetValue(false, out var methods))
+                    foreach (var func in methods)
+                    {
+                        var type = func.Name.Lexeme.ToString() == "init" ? FunctionType.Initializer : FunctionType.Method;
+                        ResolveFunction(func, type);
+                    }
             }
         }
 
@@ -102,6 +111,7 @@ public sealed partial class Resolver : IStmtVisitor<Void>
 
     private void ResolveFunction(FunctionStmt stmt, FunctionType type)
     {
+        using (_ = Switch(ref _currentStatic, stmt is StaticFuncStmt ? StaticType.Static : _currentStatic))
         using (_ = Switch(ref _currentFunction, type))
         using (_ = CreateScope())
         {

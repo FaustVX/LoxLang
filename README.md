@@ -30,7 +30,7 @@ expression     = assignment ;
 ### Declarations
 ```ebnf
 funDecl        = "fun" function ;
-classDecl      = "class" IDENTIFIER "{" (function | getter)* "}" ;
+classDecl      = "class" IDENTIFIER "{" (( "class"? function) | getter)* "}" ;
 varDecl        = "var" IDENTIFIER ( "=" expression )? ";" ;
 ```
 ### Statements

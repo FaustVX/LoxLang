@@ -35,6 +35,9 @@ partial class Parser
     private FunctionStmt ParseFunction(FunctionKind funKind)
     {
         var kind = funKind.ToString().ToLower();
+        var isStatic = (funKind, Peek()) is (FunctionKind.Method, { TokenType: TokenType.CLASS });
+        if (isStatic)
+            Advance();
         var name = Consume(TokenType.IDENTIFIER, $"Expect {kind} name.");
 
         if (MatchToken(TokenType.LEFT_PAREN))
@@ -53,14 +56,14 @@ partial class Parser
             {
                 var body = ParseBlockStatement();
 
-                return new FunctionStmt(name, parameters, body);
+                return isStatic ? new StaticFuncStmt(name, parameters, body) : new FunctionStmt(name, parameters, body);
             }
             else if (MatchToken(TokenType.COLON))
             {
                 var token = Previous();
                 var expr = (ExprStmt)ParseExprStatement();
 
-                return new FunctionStmt(name, parameters, new() { new ReturnStmt(token, expr.Expr) });
+                return isStatic ? new StaticFuncStmt(name, parameters, new() { new ReturnStmt(token, expr.Expr) }) : new FunctionStmt(name, parameters, new() { new ReturnStmt(token, expr.Expr) });
             }
             else
                 throw GenerateError(Peek(), "Expected '{{' or ':' after function");

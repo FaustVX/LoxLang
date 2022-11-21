@@ -70,6 +70,12 @@ public sealed record class GetterStmt(Token Name, List<Stmt> Body) : FunctionStm
         => visitor.Visit(this);
 }
 
+public sealed record class StaticFuncStmt(Token Name, List<Token> Parameters, List<Stmt> Body) : FunctionStmt(Name, Parameters, Body)
+{
+    public override T Accept<T>(IStmtVisitor<T> visitor)
+        => visitor.Visit(this);
+}
+
 public sealed record class ReturnStmt(Token keyword, Expr? Expr) : Stmt()
 {
     public override T Accept<T>(IStmtVisitor<T> visitor)
