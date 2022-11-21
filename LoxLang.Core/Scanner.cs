@@ -188,6 +188,7 @@ public class Scanner
                 "for" => TokenType.FOR,
                 "fun" => TokenType.FUN,
                 "if" => TokenType.IF,
+                "loop" => TokenType.LOOP,
                 "nil" => TokenType.NIL,
                 "or" => TokenType.OR,
                 "print" => TokenType.PRINT,

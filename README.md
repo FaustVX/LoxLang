@@ -23,6 +23,7 @@ statement      = funsStmt
                | forStmt
                | ifStmt
                | whileStmt
+               | loopStmt
                | breakStmt
                | block ;
 expression     = assignment ;
@@ -45,6 +46,7 @@ forStmt        = "for" "(" ( varDecl | exprStmt | ";" )
 ifStmt         = "if" "(" expression ")" statement
                ( "else" statement )? ;
 whileStmt      = "while" "(" expression ")" statement ;
+loopStmt      = "loop" statement ;
 breakStmt      = "break" ";" ;
 block          = "{" declaration* "}" ;
 exprStmt       = expression ";" ;

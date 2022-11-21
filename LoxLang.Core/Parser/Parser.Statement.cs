@@ -10,6 +10,8 @@ public partial class Parser
             return ParseIf();
         if (MatchToken(TokenType.WHILE))
             return ParseWhile();
+        if (MatchToken(TokenType.LOOP))
+            return ParseLoop();
         if (MatchToken(TokenType.FOR))
             return ParseFor();
         if (MatchToken(TokenType.BREAK))
@@ -74,6 +76,12 @@ public partial class Parser
         Consume(TokenType.RIGHT_PAREN, "Expect ')' after while condition.");
         var thenBranch = ParseStatement();
         return new WhileStmt(cond, thenBranch);
+    }
+
+    private Stmt ParseLoop()
+    {
+        var thenBranch = ParseStatement();
+        return new WhileStmt(new LiteralExpr(true), thenBranch);
     }
 
     private Stmt ParseIf()
