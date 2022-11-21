@@ -1,4 +1,6 @@
-class Breakfast {
+class Base {}
+
+class Breakfast : Base {
   cook() {
     print "Eggs a-fryin'!";
   }
@@ -8,6 +10,8 @@ class Breakfast {
   }
   square : this.length * this.length;
 }
+
+class Beacon : Breakfast {}
 
 var b = Breakfast();
 b.length = 10;

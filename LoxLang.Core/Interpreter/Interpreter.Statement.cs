@@ -67,9 +67,13 @@ public sealed partial class Interpreter : IStmtVisitor<Void>
 
     Void IStmtVisitor<Void>.Visit(ClassStmt stmt)
     {
+        var super = stmt.Super?.Accept(this);
+        if (super is not (Class or null))
+            throw new RuntimeException(stmt.Super!.Name, "Superclass must be a class.");
+        var superClass = (Class?)super;
         CurrentEnv.Define(stmt.Name, null);
         var methods = stmt.Methods.ToDictionary(static f => f.Name.Lexeme.ToString(), f => new Function(f, CurrentEnv, f.Name.Lexeme.ToString() == "init"));
-        var @class = new Class(stmt.Name, methods);
+        var @class = new Class(stmt.Name, superClass, methods);
         CurrentEnv.Assign(stmt.Name, @class);
         return default;
     }

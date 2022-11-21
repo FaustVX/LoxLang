@@ -117,9 +117,10 @@ public sealed class Class : DefinedCallable
 {
     public override Token NameToken { get; }
     private readonly Dictionary<string, Function> _methods;
+    private readonly Class? _super;
 
-    public Class(Token name, Dictionary<string, Function> methods)
-        => (NameToken, _methods) = (name, methods);
+    public Class(Token name, Class? super, Dictionary<string, Function> methods)
+        => (NameToken, _super, _methods) = (name, super, methods);
 
     public override int Arity => FindMethod("init")?.Arity ?? 0;
 
