@@ -111,7 +111,11 @@ public sealed partial class Interpreter : IExprVisitor<object?>
 
     object? IExprVisitor<object?>.Visit(GetExpr expr)
         => expr.Object.Accept(this) is Instance instance
-            ? instance.Get(expr.Name)
+            ? instance.Get(expr.Name) switch
+                {
+                    Function { IsGetter: true } get => get.Call(this, new()),
+                    var method => method,
+                }
             : throw new RuntimeException(expr.Name, "Only instances have properties.");
 
     object? IExprVisitor<object?>.Visit(SetExpr expr)

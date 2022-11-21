@@ -55,6 +55,7 @@ public sealed class Function : DefinedCallable
 
     public override Token NameToken
         => _stmt.Name;
+    public bool IsGetter => _stmt is GetterStmt;
 
     public override object? Call(Interpreter interpreter, List<object?> args)
     {

@@ -6,9 +6,12 @@ class Breakfast {
   serve(who) {
     print "Enjoy your breakfast, " + who + ".";
   }
+  square : this.length * this.length;
 }
 
 var b = Breakfast();
+b.length = 10;
+print b.square;
 b.hello = b.test = "t";
 print b.className;
 print b;

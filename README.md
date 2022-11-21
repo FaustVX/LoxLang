@@ -30,7 +30,7 @@ expression     = assignment ;
 ### Declarations
 ```ebnf
 funDecl        = "fun" function ;
-classDecl      = "class" IDENTIFIER "{" function* "}" ;
+classDecl      = "class" IDENTIFIER "{" (function | getter)* "}" ;
 varDecl        = "var" IDENTIFIER ( "=" expression )? ";" ;
 ```
 ### Statements
@@ -74,5 +74,6 @@ lambdaExpr     = "fun" "(" parameters? ")" (block | ":" expression ) ;
 ```ebnf
 arguments      = expression ( "," expression )* ;
 function       = IDENTIFIER "(" parameters? ")" (block | ":" exprStmt ) ;
+getter         = IDENTIFIER (block | ":" exprStmt ) ;
 parameters     = IDENTIFIER ( "," IDENTIFIER )* ;
 ```
