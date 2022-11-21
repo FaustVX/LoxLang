@@ -58,19 +58,7 @@ public sealed record class WhileStmt(Expr Condition, Stmt Body) : Stmt()
         => visitor.Visit(this);
 }
 
-public record class FunctionStmt(Token Name, List<Token> Parameters, List<Stmt> Body) : Stmt()
-{
-    public override T Accept<T>(IStmtVisitor<T> visitor)
-        => visitor.Visit(this);
-}
-
-public sealed record class GetterStmt(Token Name, List<Stmt> Body) : FunctionStmt(Name, new(), Body)
-{
-    public override T Accept<T>(IStmtVisitor<T> visitor)
-        => visitor.Visit(this);
-}
-
-public sealed record class StaticFuncStmt(Token Name, List<Token> Parameters, List<Stmt> Body) : FunctionStmt(Name, Parameters, Body)
+public record class FunctionStmt(Token Name, List<Token> Parameters, List<Stmt> Body, bool IsStatic, bool IsGetter) : Stmt()
 {
     public override T Accept<T>(IStmtVisitor<T> visitor)
         => visitor.Visit(this);

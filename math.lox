@@ -2,6 +2,7 @@ class Math {
   class square(n) {
     return n * n;
   }
+  class pi: 3.141592;
 }
 
-print Math.square(3); // Prints "9".
+print Math.square(Math.pi); // Prints roughly 8.87.

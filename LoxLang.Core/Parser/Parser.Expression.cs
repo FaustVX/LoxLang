@@ -109,7 +109,7 @@ public partial class Parser
 
     private Expr ParseLambdaFunctionExpr()
     {
-        var paren = Consume(TokenType.LEFT_PAREN, $"Expect '(' after function name.");
+        var paren = Consume(TokenType.LEFT_PAREN, $"Expect '(' after lambda.");
         var parameters = new List<Token>();
         if (!Check(TokenType.RIGHT_PAREN))
             do
@@ -134,7 +134,7 @@ public partial class Parser
             return new LambdaExpr(parameters, new() { new ReturnStmt(token, expr) });
         }
         else
-            throw GenerateError(Peek(), "Expected '{{' or ':' after function");
+            throw GenerateError(Peek(), "Expected '{{' or ':' after lambda");
     }
 
     private Expr ParseLeftAssociativeBinaryExpr(Func<Expr> parseExpr, Func<Expr, Token, Expr, Expr> ctor, params TokenType[] tokenTypes)

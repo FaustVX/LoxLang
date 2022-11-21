@@ -45,7 +45,7 @@ fun makeCounter() {
 
   fun gkj(fg)
   {
-    var mf;
+    var mf = 5;
   }
 
   return count;
@@ -60,5 +60,5 @@ print clock() - start;
 
   fun fgh(kj)
   {
-    var bf;
+    var bf = 5;
   }

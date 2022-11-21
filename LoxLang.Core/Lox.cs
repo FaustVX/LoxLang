@@ -38,7 +38,7 @@ public static class Lox
 
     private static void ReportWarning(int line, string where, string message)
     {
-        Console.Error.WriteLine($"[line: {line}] Error{where}: {message}");
+        Console.Error.WriteLine($"[line: {line}] Warning{where}: {message}");
         HasWarning = true;
     }
     public static void Error(Token token, string message)

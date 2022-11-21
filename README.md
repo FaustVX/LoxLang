@@ -31,7 +31,7 @@ expression     = assignment ;
 ```ebnf
 funDecl        = "fun" function ;
 classDecl      = "class" IDENTIFIER ( ":" IDENTIFIER )?
-                 "{" (( "class"? function) | getter)* "}" ;
+                 "{" ( "class"? ( function | getter ))* "}" ;
 varDecl        = "var" IDENTIFIER ( "=" expression )? ";" ;
 ```
 ### Statements

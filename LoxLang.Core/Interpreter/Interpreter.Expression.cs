@@ -117,7 +117,11 @@ public sealed partial class Interpreter : IExprVisitor<object?>
                 Function { IsGetter: true } get => get.Call(this, new()),
                 var method => method,
             },
-            Class c => c.FindMethod(expr.Name.Lexeme.ToString()),
+            Class c => c.FindMethod(expr.Name.Lexeme.ToString()) switch
+            {
+                { IsGetter: true } get => get.Call(this, new()),
+                var method => method,
+            },
             _ => throw new RuntimeException(expr.Name, "Only instances have properties.")
         };
 
