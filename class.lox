@@ -1,8 +1,12 @@
-class Base {}
+class Base {
+  cook() {
+    print "Eggs a-fryin'!";
+  }
+}
 
 class Breakfast : Base {
   cook() {
-    print "Eggs a-fryin'!";
+    print "Eggs a-fryin'!!!!!!!!!!!";
   }
 
   serve(who) {

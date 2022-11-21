@@ -135,7 +135,9 @@ public sealed class Class : DefinedCallable
         => $"<class {Name}>";
 
     public Function? FindMethod(string name)
-        => _methods.TryGetValue(name, out var method) ? method : null;
+        => _methods.TryGetValue(name, out var method) ? method
+            : _super is {} super ? super.FindMethod(name)
+            : null;
 }
 
 public class Instance
