@@ -43,6 +43,21 @@ public partial class Parser
     {
         if (MatchToken(TokenType.BANG) || MatchToken(TokenType.MINUS))
             return new UnaryExpr(Previous(), ParseUnary());
+        if (MatchToken(TokenType.PLUS_PLUS) || MatchToken(TokenType.MINUS_MINUS))
+        {
+            var token = Previous() switch
+            {
+                { TokenType: TokenType.PLUS_PLUS } t => new Token() { Lexeme = t.Lexeme, TokenType = TokenType.PLUS, Line = t.Line },
+                var t => new Token() { Lexeme = t.Lexeme, TokenType = TokenType.MINUS, Line = t.Line },
+            };
+            var expr = ParseLogicalOr();
+            var value = new BinaryExpr(expr, token, new LiteralExpr(1d));
+            if (expr is VariableExpr { Name: var name })
+                return new AssignExpr(name, value);
+            if (expr is GetExpr get)
+                return new SetExpr(get.Object, get.Name, value);
+            GenerateError(token, "Invalid assignment target.");
+        }
         return ParseCall();
     }
 

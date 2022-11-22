@@ -64,6 +64,7 @@ comparison     = term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
 term           = factor ( ( "-" | "+" ) factor )* ;
 factor         = unary ( ( "/" | "*" ) unary )* ;
 unary          = ( "!" | "-" ) unary
+               | ( "++" | "--" ) ( call "." )? IDENTIFIER
                | call ;
 call           = primary ( "(" arguments? ")" | "." IDENTIFIER )* ;
 primary        = NUMBER | STRING

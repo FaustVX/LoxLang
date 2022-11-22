@@ -56,10 +56,10 @@ public class Scanner
                 AddToken(TokenType.DOT);
                 break;
             case '-':
-                AddToken(TokenType.MINUS);
+                AddToken(MatchCurrent('-') ? TokenType.MINUS_MINUS : TokenType.MINUS);
                 break;
             case '+':
-                AddToken(TokenType.PLUS);
+                AddToken(MatchCurrent('+') ? TokenType.PLUS_PLUS : TokenType.PLUS);
                 break;
             case ';':
                 AddToken(TokenType.SEMICOLON);
