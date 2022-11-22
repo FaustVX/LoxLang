@@ -27,7 +27,7 @@ fun bench(fn)
 
 fun loop(max, fn)
 {
-  for (var a = 0; a < max; a = a + 1)
+  for (var a = 0; a < max; ++a)
     print fn(a);
 }
 

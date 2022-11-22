@@ -1,12 +1,37 @@
 class Thing {
-  getCallback() {
-    fun localFunction() {
+  getCallback() :
+    fun () {
       print this;
-    }
+    };
 
-    return localFunction;
+  class staticGetter
+  {
+    return 5;
+  }
+
+  instanceGetter
+  {
+    return 5;
+  }
+
+  class staticFunc()
+  {
+    return 5;
+  }
+
+  instanceFunc()
+  {
+    return 5;
   }
 }
 
-var callback = Thing().getCallback();
+print Thing.staticFunc();
+print Thing.staticGetter;
+
+var thing = Thing();
+print thing.instanceFunc();
+print thing.instanceGetter;
+
+var callback = thing.getCallback();
+print callback;
 callback();

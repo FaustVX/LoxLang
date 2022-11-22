@@ -98,7 +98,7 @@ public sealed partial class Resolver : IStmtVisitor<Void>
             }
 
 
-            var group = stmt.Methods.GroupBy(static m => m is StaticFuncStmt).ToDictionary(static g => g.Key, static g => g.AsEnumerable());
+            var group = stmt.Methods.GroupBy(static m => m.IsStatic).ToDictionary(static g => g.Key, static g => g.AsEnumerable());
 
             if (group.TryGetValue(true, out var _static))
                 foreach (var func in _static)
@@ -126,7 +126,7 @@ public sealed partial class Resolver : IStmtVisitor<Void>
 
     private void ResolveFunction(FunctionStmt stmt, FunctionType type)
     {
-        using (_ = Switch(ref _currentStatic, stmt is StaticFuncStmt ? StaticType.Static : _currentStatic))
+        using (_ = Switch(ref _currentStatic, stmt.IsStatic ? StaticType.Static : _currentStatic))
         using (_ = Switch(ref _currentFunction, type))
         using (_ = CreateScope())
         {

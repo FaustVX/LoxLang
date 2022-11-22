@@ -55,8 +55,8 @@ public sealed class Function : DefinedCallable
 
     public override Token NameToken
         => _stmt.Name;
-    public bool IsGetter => _stmt is GetterStmt;
-    public bool IsStatic => _stmt is StaticFuncStmt;
+    public bool IsGetter => _stmt.IsGetter;
+    public bool IsStatic => _stmt.IsStatic;
 
     public override object? Call(Interpreter interpreter, List<object?> args)
     {

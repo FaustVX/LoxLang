@@ -105,7 +105,10 @@ public sealed partial class Resolver : IExprVisitor<Void>
             Lox.Error(expr.Keyword, "Can't use 'super' outside of a class.");
         else if (_currentClass is not ClassType.SubClass)
             Lox.Error(expr.Keyword, "Can't use 'super' in a class with no superclass.");
-        ResolveLocal(expr, expr.Keyword);
+        else if (_currentStatic is StaticType.Static)
+            Lox.Error(expr.Keyword, "Can't use 'super' inside static method.");
+        else
+            ResolveLocal(expr, expr.Keyword);
         return default;
     }
 }

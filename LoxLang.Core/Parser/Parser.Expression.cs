@@ -18,6 +18,24 @@ public partial class Parser
                 return new SetExpr(get.Object, get.Name, value);
             GenerateError(token, "Invalid assignment target.");
         }
+        else if (MatchToken(TokenType.PLUS_EQUAL) || MatchToken(TokenType.MINUS_EQUAL) || MatchToken(TokenType.STAR_EQUAL) || MatchToken(TokenType.SLASH_EQUAL) || MatchToken(TokenType.PERCENT_EQUAL))
+        {
+            var token = Previous() switch
+            {
+                { TokenType: TokenType.PLUS_EQUAL } t => new Token() { Lexeme = t.Lexeme, TokenType = TokenType.PLUS, Line = t.Line },
+                { TokenType: TokenType.STAR_EQUAL } t => new Token() { Lexeme = t.Lexeme, TokenType = TokenType.STAR, Line = t.Line },
+                { TokenType: TokenType.SLASH_EQUAL } t => new Token() { Lexeme = t.Lexeme, TokenType = TokenType.SLASH, Line = t.Line },
+                { TokenType: TokenType.PERCENT_EQUAL } t => new Token() { Lexeme = t.Lexeme, TokenType = TokenType.PERCENT, Line = t.Line },
+                var t => new Token() { Lexeme = t.Lexeme, TokenType = TokenType.MINUS, Line = t.Line },
+            };
+            var value = ParseAssignment();
+            value = new BinaryExpr(expr, token, value);
+            if (expr is VariableExpr { Name: var name })
+                return new AssignExpr(name, value);
+            if (expr is GetExpr get)
+                return new SetExpr(get.Object, get.Name, value);
+            GenerateError(token, "Invalid assignment target.");
+        }
         return expr;
     }
 
@@ -34,7 +52,7 @@ public partial class Parser
         => ParseLeftAssociativeBinaryExpr(ParseTerm, static (left, op, right) => new BinaryExpr(left, op, right), TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL);
 
     private Expr ParseTerm()
-        => ParseLeftAssociativeBinaryExpr(ParseFactor, static (left, op, right) => new BinaryExpr(left, op, right), TokenType.MINUS, TokenType.PLUS);
+        => ParseLeftAssociativeBinaryExpr(ParseFactor, static (left, op, right) => new BinaryExpr(left, op, right), TokenType.MINUS, TokenType.PLUS, TokenType.PERCENT);
 
     private Expr ParseFactor()
         => ParseLeftAssociativeBinaryExpr(ParseUnary, static (left, op, right) => new BinaryExpr(left, op, right), TokenType.SLASH, TokenType.STAR);
@@ -43,6 +61,21 @@ public partial class Parser
     {
         if (MatchToken(TokenType.BANG) || MatchToken(TokenType.MINUS))
             return new UnaryExpr(Previous(), ParseUnary());
+        if (MatchToken(TokenType.PLUS_PLUS) || MatchToken(TokenType.MINUS_MINUS))
+        {
+            var token = Previous() switch
+            {
+                { TokenType: TokenType.PLUS_PLUS } t => new Token() { Lexeme = t.Lexeme, TokenType = TokenType.PLUS, Line = t.Line },
+                var t => new Token() { Lexeme = t.Lexeme, TokenType = TokenType.MINUS, Line = t.Line },
+            };
+            var expr = ParseLogicalOr();
+            var value = new BinaryExpr(expr, token, new LiteralExpr(1d));
+            if (expr is VariableExpr { Name: var name })
+                return new AssignExpr(name, value);
+            if (expr is GetExpr get)
+                return new SetExpr(get.Object, get.Name, value);
+            GenerateError(token, "Invalid assignment target.");
+        }
         return ParseCall();
     }
 
@@ -109,7 +142,7 @@ public partial class Parser
 
     private Expr ParseLambdaFunctionExpr()
     {
-        var paren = Consume(TokenType.LEFT_PAREN, $"Expect '(' after function name.");
+        var paren = Consume(TokenType.LEFT_PAREN, $"Expect '(' after lambda.");
         var parameters = new List<Token>();
         if (!Check(TokenType.RIGHT_PAREN))
             do
@@ -134,7 +167,7 @@ public partial class Parser
             return new LambdaExpr(parameters, new() { new ReturnStmt(token, expr) });
         }
         else
-            throw GenerateError(Peek(), "Expected '{{' or ':' after function");
+            throw GenerateError(Peek(), "Expected '{{' or ':' after lambda");
     }
 
     private Expr ParseLeftAssociativeBinaryExpr(Func<Expr> parseExpr, Func<Expr, Token, Expr, Expr> ctor, params TokenType[] tokenTypes)

@@ -23,6 +23,7 @@ statement      = funsStmt
                | forStmt
                | ifStmt
                | whileStmt
+               | loopStmt
                | breakStmt
                | block ;
 expression     = assignment ;
@@ -31,7 +32,7 @@ expression     = assignment ;
 ```ebnf
 funDecl        = "fun" function ;
 classDecl      = "class" IDENTIFIER ( ":" IDENTIFIER )?
-                 "{" (( "class"? function) | getter)* "}" ;
+                 "{" ( "class"? ( function | getter ))* "}" ;
 varDecl        = "var" IDENTIFIER ( "=" expression )? ";" ;
 ```
 ### Statements
@@ -45,6 +46,7 @@ forStmt        = "for" "(" ( varDecl | exprStmt | ";" )
 ifStmt         = "if" "(" expression ")" statement
                ( "else" statement )? ;
 whileStmt      = "while" "(" expression ")" statement ;
+loopStmt      = "loop" statement ;
 breakStmt      = "break" ";" ;
 block          = "{" declaration* "}" ;
 exprStmt       = expression ";" ;
@@ -53,15 +55,16 @@ returnStmt     = "return" expression? ";" ;
 ```
 ### Expressions
 ```ebnf
-assignment     = ( call "." )? IDENTIFIER "=" assignment
+assignment     = ( call "." )? IDENTIFIER ( "=" | "+=" | "-=" | "*=" | "/=" | "%=" ) assignment
                | logicalOr ;
 logicalOr      = logicalAnd ( "or" logicalAnd )* ;
 logicalAnd     = equality ( "and" equality )* ;
 equality       = comparison ( ( "!=" | "==" ) comparison )* ;
 comparison     = term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
 term           = factor ( ( "-" | "+" ) factor )* ;
-factor         = unary ( ( "/" | "*" ) unary )* ;
+factor         = unary ( ( "/" | "*" | "%" ) unary )* ;
 unary          = ( "!" | "-" ) unary
+               | ( "++" | "--" ) ( call "." )? IDENTIFIER
                | call ;
 call           = primary ( "(" arguments? ")" | "." IDENTIFIER )* ;
 primary        = NUMBER | STRING

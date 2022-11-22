@@ -56,10 +56,10 @@ public class Scanner
                 AddToken(TokenType.DOT);
                 break;
             case '-':
-                AddToken(TokenType.MINUS);
+                AddToken(MatchCurrent('-') ? TokenType.MINUS_MINUS : MatchCurrent('=') ? TokenType.MINUS_EQUAL : TokenType.MINUS);
                 break;
             case '+':
-                AddToken(TokenType.PLUS);
+                AddToken(MatchCurrent('+') ? TokenType.PLUS_PLUS : MatchCurrent('=') ? TokenType.PLUS_EQUAL : TokenType.PLUS);
                 break;
             case ';':
                 AddToken(TokenType.SEMICOLON);
@@ -68,7 +68,7 @@ public class Scanner
                 AddToken(TokenType.COLON);
                 break;
             case '*':
-                AddToken(TokenType.STAR);
+                AddToken(MatchCurrent('=') ? TokenType.STAR_EQUAL : TokenType.STAR);
                 break;
             case '!':
                 AddToken(MatchCurrent('=') ? TokenType.BANG_EQUAL : TokenType.BANG);
@@ -82,10 +82,15 @@ public class Scanner
             case '>':
                 AddToken(MatchCurrent('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER);
                 break;
+            case '%':
+                AddToken(MatchCurrent('=') ? TokenType.PERCENT_EQUAL : TokenType.PERCENT);
+                break;
             case '/':
                 if (MatchCurrent('/'))
                     while (Peek() != '\n' && !IsAtEnd)
                         Advance();
+                else if (MatchCurrent('='))
+                    AddToken(TokenType.SLASH_EQUAL);
                 else
                     AddToken(TokenType.SLASH);
                 break;
@@ -188,6 +193,7 @@ public class Scanner
                 "for" => TokenType.FOR,
                 "fun" => TokenType.FUN,
                 "if" => TokenType.IF,
+                "loop" => TokenType.LOOP,
                 "nil" => TokenType.NIL,
                 "or" => TokenType.OR,
                 "print" => TokenType.PRINT,

@@ -17,6 +17,9 @@ public sealed partial class Interpreter : IExprVisitor<object?>
             (TokenType.STAR, var left, var right)
                 when CheckNumberOperand(left, expr.Operator, out var l) && CheckNumberOperand(right, expr.Operator, out var r)
                 => l * r,
+            (TokenType.PERCENT, var left, var right)
+                when CheckNumberOperand(left, expr.Operator, out var l) && CheckNumberOperand(right, expr.Operator, out var r)
+                => l % r,
             (TokenType.PLUS, var left, var right) => AddOperands(expr.Operator, left, right),
             (TokenType.GREATER, var left, var right)
                 when CheckNumberOperand(left, expr.Operator, out var l) && CheckNumberOperand(right, expr.Operator, out var r)
@@ -117,7 +120,11 @@ public sealed partial class Interpreter : IExprVisitor<object?>
                 Function { IsGetter: true } get => get.Call(this, new()),
                 var method => method,
             },
-            Class c => c.FindMethod(expr.Name.Lexeme.ToString()),
+            Class c => c.FindMethod(expr.Name.Lexeme.ToString()) switch
+            {
+                { IsGetter: true } get => get.Call(this, new()),
+                var method => method,
+            },
             _ => throw new RuntimeException(expr.Name, "Only instances have properties.")
         };
 
