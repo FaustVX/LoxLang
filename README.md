@@ -55,14 +55,14 @@ returnStmt     = "return" expression? ";" ;
 ```
 ### Expressions
 ```ebnf
-assignment     = ( call "." )? IDENTIFIER ( "=" | "+=" | "-=" | "*=" | "/=" ) assignment
+assignment     = ( call "." )? IDENTIFIER ( "=" | "+=" | "-=" | "*=" | "/=" | "%=" ) assignment
                | logicalOr ;
 logicalOr      = logicalAnd ( "or" logicalAnd )* ;
 logicalAnd     = equality ( "and" equality )* ;
 equality       = comparison ( ( "!=" | "==" ) comparison )* ;
 comparison     = term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
 term           = factor ( ( "-" | "+" ) factor )* ;
-factor         = unary ( ( "/" | "*" ) unary )* ;
+factor         = unary ( ( "/" | "*" | "%" ) unary )* ;
 unary          = ( "!" | "-" ) unary
                | ( "++" | "--" ) ( call "." )? IDENTIFIER
                | call ;

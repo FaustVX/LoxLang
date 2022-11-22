@@ -82,6 +82,9 @@ public class Scanner
             case '>':
                 AddToken(MatchCurrent('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER);
                 break;
+            case '%':
+                AddToken(MatchCurrent('=') ? TokenType.PERCENT_EQUAL : TokenType.PERCENT);
+                break;
             case '/':
                 if (MatchCurrent('/'))
                     while (Peek() != '\n' && !IsAtEnd)

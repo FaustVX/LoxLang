@@ -18,13 +18,14 @@ public partial class Parser
                 return new SetExpr(get.Object, get.Name, value);
             GenerateError(token, "Invalid assignment target.");
         }
-        else if (MatchToken(TokenType.PLUS_EQUAL) || MatchToken(TokenType.MINUS_EQUAL) || MatchToken(TokenType.STAR_EQUAL) || MatchToken(TokenType.SLASH_EQUAL))
+        else if (MatchToken(TokenType.PLUS_EQUAL) || MatchToken(TokenType.MINUS_EQUAL) || MatchToken(TokenType.STAR_EQUAL) || MatchToken(TokenType.SLASH_EQUAL) || MatchToken(TokenType.PERCENT_EQUAL))
         {
             var token = Previous() switch
             {
                 { TokenType: TokenType.PLUS_EQUAL } t => new Token() { Lexeme = t.Lexeme, TokenType = TokenType.PLUS, Line = t.Line },
                 { TokenType: TokenType.STAR_EQUAL } t => new Token() { Lexeme = t.Lexeme, TokenType = TokenType.STAR, Line = t.Line },
                 { TokenType: TokenType.SLASH_EQUAL } t => new Token() { Lexeme = t.Lexeme, TokenType = TokenType.SLASH, Line = t.Line },
+                { TokenType: TokenType.PERCENT_EQUAL } t => new Token() { Lexeme = t.Lexeme, TokenType = TokenType.PERCENT, Line = t.Line },
                 var t => new Token() { Lexeme = t.Lexeme, TokenType = TokenType.MINUS, Line = t.Line },
             };
             var value = ParseAssignment();
@@ -51,7 +52,7 @@ public partial class Parser
         => ParseLeftAssociativeBinaryExpr(ParseTerm, static (left, op, right) => new BinaryExpr(left, op, right), TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL);
 
     private Expr ParseTerm()
-        => ParseLeftAssociativeBinaryExpr(ParseFactor, static (left, op, right) => new BinaryExpr(left, op, right), TokenType.MINUS, TokenType.PLUS);
+        => ParseLeftAssociativeBinaryExpr(ParseFactor, static (left, op, right) => new BinaryExpr(left, op, right), TokenType.MINUS, TokenType.PLUS, TokenType.PERCENT);
 
     private Expr ParseFactor()
         => ParseLeftAssociativeBinaryExpr(ParseUnary, static (left, op, right) => new BinaryExpr(left, op, right), TokenType.SLASH, TokenType.STAR);
