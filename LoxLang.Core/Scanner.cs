@@ -56,10 +56,10 @@ public class Scanner
                 AddToken(TokenType.DOT);
                 break;
             case '-':
-                AddToken(MatchCurrent('-') ? TokenType.MINUS_MINUS : TokenType.MINUS);
+                AddToken(MatchCurrent('-') ? TokenType.MINUS_MINUS : MatchCurrent('=') ? TokenType.MINUS_EQUAL : TokenType.MINUS);
                 break;
             case '+':
-                AddToken(MatchCurrent('+') ? TokenType.PLUS_PLUS : TokenType.PLUS);
+                AddToken(MatchCurrent('+') ? TokenType.PLUS_PLUS : MatchCurrent('=') ? TokenType.PLUS_EQUAL : TokenType.PLUS);
                 break;
             case ';':
                 AddToken(TokenType.SEMICOLON);
@@ -68,7 +68,7 @@ public class Scanner
                 AddToken(TokenType.COLON);
                 break;
             case '*':
-                AddToken(TokenType.STAR);
+                AddToken(MatchCurrent('=') ? TokenType.STAR_EQUAL : TokenType.STAR);
                 break;
             case '!':
                 AddToken(MatchCurrent('=') ? TokenType.BANG_EQUAL : TokenType.BANG);
@@ -86,6 +86,8 @@ public class Scanner
                 if (MatchCurrent('/'))
                     while (Peek() != '\n' && !IsAtEnd)
                         Advance();
+                else if (MatchCurrent('='))
+                    AddToken(TokenType.SLASH_EQUAL);
                 else
                     AddToken(TokenType.SLASH);
                 break;

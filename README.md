@@ -55,7 +55,7 @@ returnStmt     = "return" expression? ";" ;
 ```
 ### Expressions
 ```ebnf
-assignment     = ( call "." )? IDENTIFIER "=" assignment
+assignment     = ( call "." )? IDENTIFIER ( "=" | "+=" | "-=" | "*=" | "/=" ) assignment
                | logicalOr ;
 logicalOr      = logicalAnd ( "or" logicalAnd )* ;
 logicalAnd     = equality ( "and" equality )* ;
